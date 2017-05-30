@@ -1,0 +1,74 @@
+﻿<Window x:Class="lineRegressionGFK.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:lineRegressionGFK"
+        xmlns:vm="clr-namespace:lineRegressionGFK.VM"
+        xmlns:converter="clr-namespace:lineRegressionGFK.Converters"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="350" Width="525">
+    <Window.Resources>
+        <vm:MainPageViewModel x:Key="MainPageViewModel"/>
+        <converter:StringToInt32Converter x:Key="StringToInt32Converter"></converter:StringToInt32Converter>
+    </Window.Resources>
+    <Window.DataContext>
+        <StaticResource ResourceKey="MainPageViewModel"></StaticResource>
+    </Window.DataContext>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="8*"/>
+        </Grid.ColumnDefinitions>
+        
+        <StackPanel Grid.Column="0">
+            <DockPanel Margin="6">
+                <Label Content="{Binding XLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
+                <TextBox Text="{Binding CurrentXValue, Mode=TwoWay, Converter={StaticResource StringToInt32Converter}}" VerticalAlignment="Center"/>
+            </DockPanel>
+            <DockPanel Margin="6">
+                <Label Content="{Binding YLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
+                <TextBox Text="{Binding CurrentYValue, Mode=TwoWay, Converter={StaticResource StringToInt32Converter}}" VerticalAlignment="Center"/>
+            </DockPanel>
+            <Button Content="{Binding AddButtonText}" Command="{Binding AddButtonCommand}" Margin="6"></Button>
+            <Button Content="{Binding FromFileText}" Command="{Binding FromFileCommand}" Margin="6"></Button>
+            <ListView ItemsSource="{Binding PointsCollection}" Margin="6">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="F("></Label>
+                            <Label Content="{Binding X}" HorizontalAlignment="Left"></Label>
+                            <Label Content=") = " HorizontalAlignment="Left"></Label>
+                            <Label Content="{Binding Y}" HorizontalAlignment="Left"></Label>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </StackPanel>
+        
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="8*"></RowDefinition>
+                <RowDefinition Height="2*"></RowDefinition>
+            </Grid.RowDefinitions>
+            <ItemsControl ItemsSource="{Binding Path=PointsCollection}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas Background="Black" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Ellipse Fill="White" Width="2" Height="2" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemContainerStyle>
+                    <Style>
+                        <Setter Property="Canvas.Bottom" Value="{Binding Path=YForChart}" />
+                        <Setter Property="Canvas.Left" Value="{Binding Path=XForChart}" />
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
+            </ItemsControl>
+        </Grid>
+    </Grid>
+</Window>
