@@ -65,6 +65,7 @@
     </ApplicationDefinition>
     <Compile Include="Converters\StringToInt32Converter.cs" />
     <Compile Include="Models\ChartPoint.cs" />
+    <Compile Include="Models\Regression.cs" />
     <Compile Include="Models\RelayCommand.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="VM\MainPageViewModel.cs" />
