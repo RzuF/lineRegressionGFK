@@ -361,7 +361,27 @@ namespace lineRegressionGFK.VM
 
                     public ICommand FromFileCommand => _fromFileCommand ?? new RelayCommand((obj) =>
                     {
-                        // TODO: Import points from file
+                        var saveFileDialog = new OpenFileDialog() { RestoreDirectory = true };
+
+                        if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                        {
+                            using (var saveStream = new StreamReader(saveFileDialog.OpenFile()))
+                            {
+                                PointsCollection.Clear();                                
+                                string readFile = saveStream.ReadToEnd();
+                                var fileLines = readFile.Split(new[] {"\n"}, StringSplitOptions.RemoveEmptyEntries);
+                                foreach (var fileLine in fileLines)
+                                {
+                                    var xy = fileLine.Split(new[] {" ", ";", "\t"},
+                                        StringSplitOptions.RemoveEmptyEntries);
+                                    int x, y;
+                                    if (xy.Length == 2 && int.TryParse(xy[0], out x) && int.TryParse(xy[1], out y))
+                                    {
+                                        AddPointToPointsCollection(x,y);
+                                    }
+                                }
+                            }
+                        }
                     });
 
                     public string SaveAsText => "Save chart as...";
@@ -383,6 +403,14 @@ namespace lineRegressionGFK.VM
                                 }
                             }
                         });
+
+                    public string ClearText => "Clear chart of points";
+                    private ICommand _clearCommand;
+
+                    public ICommand ClearCommand => _clearCommand ?? new RelayCommand((obj) =>
+                    {
+                        PointsCollection = new List<ChartPoint>();
+                    });
 
                     private ICommand _sizeChangedCommand;
 

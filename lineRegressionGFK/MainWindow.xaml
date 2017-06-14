@@ -43,11 +43,12 @@
             <Button Content="{Binding AddButtonText}" Command="{Binding AddButtonCommand}" Margin="6"></Button>
             <Button Content="{Binding FromFileText}" Command="{Binding FromFileCommand}" Margin="6"></Button>
             <Button Content="{Binding SaveAsText}" Command="{Binding SaveAsCommand}" Margin="6"></Button>
+            <Button Content="{Binding ClearText}" Command="{Binding ClearCommand}" Margin="6"></Button>
             <ListView ItemsSource="{Binding PointsCollection}" Margin="6">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
-                            <Label Content="F("></Label>
+                            <Label Content="F(" HorizontalAlignment="Left"></Label>
                             <Label Content="{Binding X}" HorizontalAlignment="Left"></Label>
                             <Label Content=") = " HorizontalAlignment="Left"></Label>
                             <Label Content="{Binding Y}" HorizontalAlignment="Left"></Label>
