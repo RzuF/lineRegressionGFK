@@ -94,6 +94,7 @@
     </ApplicationDefinition>
     <Compile Include="Converters\BoolToVisibilityConverter.cs" />
     <Compile Include="Converters\PointPositionScaleConverter.cs" />
+    <Compile Include="Converters\PositionToStringMultiConverter.cs" />
     <Compile Include="Converters\SizePartsToSizeConverter.cs" />
     <Compile Include="Converters\StringToDoubleConverter.cs" />
     <Compile Include="Converters\StringToInt32Converter.cs" />

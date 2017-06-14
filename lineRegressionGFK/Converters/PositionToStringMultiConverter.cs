@@ -9,12 +9,12 @@ using System.Windows.Data;
 
 namespace lineRegressionGFK.Converters
 {
-    public class SizePartsToSizeConverter : IMultiValueConverter
-    {
+    class PositionToStringMultiConverter : IMultiValueConverter
+    {        
         public object Convert(object[] value, Type targetType, object parameter, CultureInfo culture)
         {
             var values = value.Where(x => x is double).Cast<double>().ToList();
-            return values.Count() != 2 ? DependencyProperty.UnsetValue : new Size(values[1], values[0]);
+            return values.Count() != 2 ? DependencyProperty.UnsetValue : $"F({values[0]}) = {values[1]}";
         }
 
         public object[] ConvertBack(object value, Type[] targetType, object parameter, CultureInfo culture)

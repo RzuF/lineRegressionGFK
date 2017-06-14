@@ -21,6 +21,7 @@
         <converter:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"></converter:BoolToVisibilityConverter>
         <converter:PointPositionScaleConverter x:Key="PointPositionScaleConverter"></converter:PointPositionScaleConverter>
         <converter:SizePartsToSizeConverter x:Key="SizePartsToSizeConverter"></converter:SizePartsToSizeConverter>
+        <converter:PositionToStringMultiConverter x:Key="PositionToStringMultiConverter"></converter:PositionToStringMultiConverter>
     </Window.Resources>
     <Window.DataContext>
         <StaticResource ResourceKey="MainPageViewModel"></StaticResource>
@@ -47,12 +48,20 @@
             <ListView ItemsSource="{Binding PointsCollection}" Margin="6">
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <StackPanel Orientation="Horizontal">
+                        <!--<StackPanel Orientation="Horizontal">
                             <Label Content="F(" HorizontalAlignment="Left"></Label>
                             <Label Content="{Binding X}" HorizontalAlignment="Left"></Label>
                             <Label Content=") = " HorizontalAlignment="Left"></Label>
                             <Label Content="{Binding Y}" HorizontalAlignment="Left"></Label>
-                        </StackPanel>
+                        </StackPanel>-->
+                        <Label>
+                            <Label.Content>
+                                <MultiBinding Converter="{StaticResource PositionToStringMultiConverter}">
+                                    <Binding Path="X"></Binding>
+                                    <Binding Path="Y"></Binding>
+                                </MultiBinding>
+                            </Label.Content>
+                        </Label>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
@@ -64,109 +73,117 @@
                 <RowDefinition Height="3*"></RowDefinition>
             </Grid.RowDefinitions>
 
-            <Grid x:Name="ChartGridContainer">
-                <ItemsControl ItemsSource="{Binding Path=HorizontalLinesCollection}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <Canvas Background="{Binding BackgroundBrush}" Margin="10">
-                            </Canvas>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Grid>
-                                <Rectangle Fill="{Binding LineBrush, Source={StaticResource MainPageViewModel}}" Width="{Binding Size}" Height="1px" Opacity="{Binding Opacity}" VerticalAlignment="Bottom"></Rectangle>
-                                <TextBlock Text="{Binding StringValue}" Foreground="{Binding LineBrush, Source={StaticResource MainPageViewModel}}">
-                                    <TextBlock.Margin>
-                                        <Thickness>15,0,0,0</Thickness>
-                                    </TextBlock.Margin>
-                                </TextBlock>
-                            </Grid>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                    <ItemsControl.ItemContainerStyle>
-                        <Style>
-                            <Setter Property="Canvas.Bottom" Value="{Binding Path=PositionFromBeggining}" />
-                        </Style>
-                    </ItemsControl.ItemContainerStyle>
-                </ItemsControl>
-                <ItemsControl ItemsSource="{Binding Path=VerticalLinesCollection}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <Canvas Background="Transparent" Margin="10">
-                            </Canvas>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Grid>
-                                <Rectangle Fill="{Binding LineBrush, Source={StaticResource MainPageViewModel}}" Width="1px" Height="{Binding Size}" Opacity="{Binding Opacity}" HorizontalAlignment="Left"></Rectangle>
-                                <TextBlock Text="{Binding StringValue}" Foreground="{Binding LineBrush, Source={StaticResource MainPageViewModel}}" VerticalAlignment="Bottom">
-                                    <TextBlock.Margin>
-                                        <Thickness>0,0,0,0</Thickness>
-                                    </TextBlock.Margin>
-                                </TextBlock>
-                            </Grid>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                    <ItemsControl.ItemContainerStyle>
-                        <Style>
-                            <Setter Property="Canvas.Left" Value="{Binding Path=PositionFromBeggining}" />
-                        </Style>
-                    </ItemsControl.ItemContainerStyle>
-                </ItemsControl>
+            <Grid ClipToBounds="True" Margin="10" MouseLeftButtonDown="UIElement_OnMouseLeftButtonDown" MouseLeftButtonUp="UIElement_OnMouseLeftButtonUp" MouseLeave="UIElement_OnMouseLeave" MouseMove="UIElement_OnMouseMove" Background="{Binding BackgroundBrush}">
+                <Grid Grid.Row="0" x:Name="ChartGridContainer" RenderTransformOrigin="0.5,0.5">
+                    <Grid.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform ScaleX="{Binding Scale}"/>
+                            <ScaleTransform ScaleY="{Binding Scale}"/>
+                        </TransformGroup>
+                    </Grid.RenderTransform>
+                    <ItemsControl ItemsSource="{Binding Path=HorizontalLinesCollection}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <Canvas Background="{Binding BackgroundBrush}" Margin="10">
+                                </Canvas>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Rectangle Fill="{Binding LineBrush, Source={StaticResource MainPageViewModel}}" Width="{Binding Size}" Height="1px" Opacity="{Binding Opacity}" VerticalAlignment="Bottom"></Rectangle>
+                                    <TextBlock Text="{Binding StringValue}" Foreground="{Binding LineBrush, Source={StaticResource MainPageViewModel}}">
+                                        <TextBlock.Margin>
+                                            <Thickness>15,0,0,0</Thickness>
+                                        </TextBlock.Margin>
+                                    </TextBlock>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        <ItemsControl.ItemContainerStyle>
+                            <Style>
+                                <Setter Property="Canvas.Bottom" Value="{Binding Path=PositionFromBeggining}" />
+                            </Style>
+                        </ItemsControl.ItemContainerStyle>
+                    </ItemsControl>
+                    <ItemsControl ItemsSource="{Binding Path=VerticalLinesCollection}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <Canvas Background="Transparent" Margin="10">
+                                </Canvas>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Rectangle Fill="{Binding LineBrush, Source={StaticResource MainPageViewModel}}" Width="1px" Height="{Binding Size}" Opacity="{Binding Opacity}" HorizontalAlignment="Left"></Rectangle>
+                                    <TextBlock Text="{Binding StringValue}" Foreground="{Binding LineBrush, Source={StaticResource MainPageViewModel}}" VerticalAlignment="Bottom">
+                                        <TextBlock.Margin>
+                                            <Thickness>0,0,0,0</Thickness>
+                                        </TextBlock.Margin>
+                                    </TextBlock>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        <ItemsControl.ItemContainerStyle>
+                            <Style>
+                                <Setter Property="Canvas.Left" Value="{Binding Path=PositionFromBeggining}" />
+                            </Style>
+                        </ItemsControl.ItemContainerStyle>
+                    </ItemsControl>
 
-                <ItemsControl ItemsSource="{Binding Path=PointsCollection}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <Canvas Background="Transparent" Margin="10">
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="SizeChanged">
-                                        <i:InvokeCommandAction Command="{Binding SizeChangedCommand}">
-                                            <i:InvokeCommandAction.CommandParameter>
-                                                <MultiBinding Converter="{StaticResource SizePartsToSizeConverter}">
-                                                    <Binding Path="ActualHeight" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type Canvas}}"/>
-                                                    <Binding Path="ActualWidth" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type Canvas}}"/>
-                                                </MultiBinding>
-                                            </i:InvokeCommandAction.CommandParameter>
-                                        </i:InvokeCommandAction>
-                                    </i:EventTrigger>
-                                    <i:EventTrigger EventName="Loaded">
-                                        <i:InvokeCommandAction Command="{Binding SizeChangedCommand}">
-                                            <i:InvokeCommandAction.CommandParameter>
-                                                <MultiBinding Converter="{StaticResource SizePartsToSizeConverter}">
-                                                    <Binding Path="ActualHeight" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type Canvas}}"/>
-                                                    <Binding Path="ActualWidth" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type Canvas}}"/>
-                                                </MultiBinding>
-                                            </i:InvokeCommandAction.CommandParameter>
-                                        </i:InvokeCommandAction>
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
-                            </Canvas>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Grid>
-                                <Ellipse Visibility="{Binding EllipseTypePoint, Source={StaticResource MainPageViewModel}, Converter={StaticResource BoolToVisibilityConverter}}" Fill="{Binding PointBrush, Source={StaticResource MainPageViewModel}}" Width="{Binding PointRadius, Source={StaticResource MainPageViewModel}}" Height="{Binding PointRadius, Source={StaticResource MainPageViewModel}}" />
-                                <Rectangle Visibility="{Binding RectangleTypePoint, Source={StaticResource MainPageViewModel}, Converter={StaticResource BoolToVisibilityConverter}}" Fill="{Binding PointBrush, Source={StaticResource MainPageViewModel}}" Width="{Binding PointRadius, Source={StaticResource MainPageViewModel}}" Height="{Binding PointRadius, Source={StaticResource MainPageViewModel}}" />
-                                <Rectangle Visibility="{Binding DiamondTypePoint, Source={StaticResource MainPageViewModel}, Converter={StaticResource BoolToVisibilityConverter}}" Fill="{Binding PointBrush, Source={StaticResource MainPageViewModel}}" Width="{Binding PointRadius, Source={StaticResource MainPageViewModel}}" Height="{Binding PointRadius, Source={StaticResource MainPageViewModel}}" RenderTransformOrigin="0.5,0.5" >
-                                    <Rectangle.RenderTransform>
-                                        <TransformGroup>
-                                            <RotateTransform Angle="45"/>
-                                        </TransformGroup>
-                                    </Rectangle.RenderTransform>
-                                </Rectangle>
-                            </Grid>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                    <ItemsControl.ItemContainerStyle>
-                        <Style>
-                            <Setter Property="Canvas.Bottom" Value="{Binding Path=YForChart}" />
-                            <Setter Property="Canvas.Left" Value="{Binding Path=XForChart}" />
-                        </Style>
-                    </ItemsControl.ItemContainerStyle>
-                </ItemsControl>
+                    <ItemsControl ItemsSource="{Binding Path=PointsCollection}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <Canvas Background="Transparent" Margin="10">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="SizeChanged">
+                                            <i:InvokeCommandAction Command="{Binding SizeChangedCommand}">
+                                                <i:InvokeCommandAction.CommandParameter>
+                                                    <MultiBinding Converter="{StaticResource SizePartsToSizeConverter}">
+                                                        <Binding Path="ActualHeight" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type Canvas}}"/>
+                                                        <Binding Path="ActualWidth" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type Canvas}}"/>
+                                                    </MultiBinding>
+                                                </i:InvokeCommandAction.CommandParameter>
+                                            </i:InvokeCommandAction>
+                                        </i:EventTrigger>
+                                        <i:EventTrigger EventName="Loaded">
+                                            <i:InvokeCommandAction Command="{Binding SizeChangedCommand}">
+                                                <i:InvokeCommandAction.CommandParameter>
+                                                    <MultiBinding Converter="{StaticResource SizePartsToSizeConverter}">
+                                                        <Binding Path="ActualHeight" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type Canvas}}"/>
+                                                        <Binding Path="ActualWidth" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type Canvas}}"/>
+                                                    </MultiBinding>
+                                                </i:InvokeCommandAction.CommandParameter>
+                                            </i:InvokeCommandAction>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </Canvas>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Ellipse Visibility="{Binding EllipseTypePoint, Source={StaticResource MainPageViewModel}, Converter={StaticResource BoolToVisibilityConverter}}" Fill="{Binding PointBrush, Source={StaticResource MainPageViewModel}}" Width="{Binding PointRadius, Source={StaticResource MainPageViewModel}}" Height="{Binding PointRadius, Source={StaticResource MainPageViewModel}}" />
+                                    <Rectangle Visibility="{Binding RectangleTypePoint, Source={StaticResource MainPageViewModel}, Converter={StaticResource BoolToVisibilityConverter}}" Fill="{Binding PointBrush, Source={StaticResource MainPageViewModel}}" Width="{Binding PointRadius, Source={StaticResource MainPageViewModel}}" Height="{Binding PointRadius, Source={StaticResource MainPageViewModel}}" />
+                                    <Rectangle Visibility="{Binding DiamondTypePoint, Source={StaticResource MainPageViewModel}, Converter={StaticResource BoolToVisibilityConverter}}" Fill="{Binding PointBrush, Source={StaticResource MainPageViewModel}}" Width="{Binding PointRadius, Source={StaticResource MainPageViewModel}}" Height="{Binding PointRadius, Source={StaticResource MainPageViewModel}}" RenderTransformOrigin="0.5,0.5" >
+                                        <Rectangle.RenderTransform>
+                                            <TransformGroup>
+                                                <RotateTransform Angle="45"/>
+                                            </TransformGroup>
+                                        </Rectangle.RenderTransform>
+                                    </Rectangle>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        <ItemsControl.ItemContainerStyle>
+                            <Style>
+                                <Setter Property="Canvas.Bottom" Value="{Binding Path=YForChart}" />
+                                <Setter Property="Canvas.Left" Value="{Binding Path=XForChart}" />
+                            </Style>
+                        </ItemsControl.ItemContainerStyle>
+                    </ItemsControl>
+                </Grid>
             </Grid>
 
             <StackPanel Grid.Row="1">
@@ -195,6 +212,10 @@
                     <RadioButton Content="{Binding RectangleTypePointLabelText}" IsChecked="{Binding RectangleTypePoint}"></RadioButton>
                     <RadioButton Content="{Binding DiamondTypePointLabelText}" IsChecked="{Binding DiamondTypePoint}"></RadioButton>
                 </StackPanel>
+                <DockPanel Margin="6">
+                    <Label Content="{Binding ScaleLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
+                    <TextBox Text="{Binding Scale, Mode=TwoWay, Converter={StaticResource StringToDoubleConverter}}" VerticalAlignment="Center"/>
+                </DockPanel>
             </StackPanel>
         </Grid>
     </Grid>

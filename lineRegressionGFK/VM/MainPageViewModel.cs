@@ -24,6 +24,7 @@ namespace lineRegressionGFK.VM
     public class MainPageViewModel : INotifyPropertyChanged
     {
         public static MainPageViewModel Instance { get; private set; }
+        public static bool ManipulationStarted { get; set; } = false;
         private Size _renderSize;
 
         public Size RenderSize
@@ -303,6 +304,19 @@ namespace lineRegressionGFK.VM
                 _lineHorizontalOpacity = value;
                 UpdateHorizontalLines();
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LineHorizontalOpacity)));
+            }
+        }
+
+        public string ScaleLabelText { get; } = "Scale";
+        private double _scale = 1;
+
+        public double Scale
+        {
+            get { return _scale; }
+            set
+            {
+                _scale = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Scale)));
             }
         }
 
