@@ -48,7 +48,7 @@ namespace lineRegressionGFK
             {
                 (Resources["MainPageViewModel"] as MainPageViewModel)?.AddPointToPointsCollection((int)chartPoint.X, (int)chartPoint.Y);
             }
-            #endif
+#endif            
         }
     }
 }

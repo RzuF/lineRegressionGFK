@@ -9,7 +9,8 @@
         xmlns:vm="clr-namespace:lineRegressionGFK.VM"
         xmlns:converter="clr-namespace:lineRegressionGFK.Converters"
         mc:Ignorable="d"
-        Title="MainWindow" Height="651.203" Width="534.19">
+        Title="MainWindow" Height="651.203" Width="534.19"
+        x:Name="MainWindowControl">
     <Window.Resources>
         <vm:MainPageViewModel x:Key="MainPageViewModel" x:Name="MainPageViewModel"/>
         <converter:StringToInt32Converter x:Key="StringToInt32Converter"></converter:StringToInt32Converter>
@@ -57,7 +58,7 @@
                 <RowDefinition Height="3*"></RowDefinition>
             </Grid.RowDefinitions>
 
-            <Grid>
+            <Grid x:Name="ChartGridContainer">
             <ItemsControl ItemsSource="{Binding Path=HorizontalLinesCollection}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -98,7 +99,7 @@
             <ItemsControl ItemsSource="{Binding Path=PointsCollection}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <Canvas Background="Transparent" Margin="10" >
+                            <Canvas Background="Transparent" Margin="10">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="SizeChanged">
                                     <i:InvokeCommandAction Command="{Binding SizeChangedCommand}">
@@ -110,7 +111,7 @@
                                         </i:InvokeCommandAction.CommandParameter>
                                     </i:InvokeCommandAction>
                                 </i:EventTrigger>
-                                <i:EventTrigger EventName="Initialized">
+                                    <i:EventTrigger EventName="Loaded">
                                     <i:InvokeCommandAction Command="{Binding SizeChangedCommand}">
                                         <i:InvokeCommandAction.CommandParameter>
                                             <MultiBinding Converter="{StaticResource SizePartsToSizeConverter}">
