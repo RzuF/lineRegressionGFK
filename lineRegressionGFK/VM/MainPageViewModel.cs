@@ -97,7 +97,7 @@ namespace lineRegressionGFK.VM
                 double position = i * LineHighDelta / MaxYValue.Value * (_renderSize.Height - 20) + 10;
                 if (position > _renderSize.Height)
                     break;
-                _newList.Add(new ChartLine() {PositionFromBeggining = position, LineColor = new SolidColorBrush(Colors.White), Size = _renderSize.Width, Opacity = LineHorizontalOpacity});
+                _newList.Add(new ChartLine() {PositionFromBeggining = position, Size = _renderSize.Width, Opacity = LineHorizontalOpacity});
             }
             HorizontalLinesCollection = _newList;
         }
@@ -111,7 +111,7 @@ namespace lineRegressionGFK.VM
                 double position = i * LineWidthDelta / MaxXValue.Value * (_renderSize.Width - 20) + 10;
                 if (position > _renderSize.Width)
                     break;
-                _newList.Add(new ChartLine() { PositionFromBeggining = position, LineColor = new SolidColorBrush(Colors.White), Size = _renderSize.Height, Opacity = LineVerticalOpacity});
+                _newList.Add(new ChartLine() { PositionFromBeggining = position, Size = _renderSize.Height, Opacity = LineVerticalOpacity});
             }
             VerticalLinesCollection = _newList;
         }
@@ -126,6 +126,65 @@ namespace lineRegressionGFK.VM
         #endregion
 
         #region Chart Properties
+
+        public string PointColorLabelText { get; } = "Pick point color";
+        private Color _pointColor = Colors.White;
+        public Color PointColor
+        {
+            get { return _pointColor; }
+            set
+            {
+                _pointColor = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PointColor)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PointBrush)));
+            }
+        }
+
+        public Brush PointBrush => new SolidColorBrush(_pointColor);
+
+        public string LineColorLabelText { get; } = "Pick line color";
+        private Color _lineColor = Colors.White;
+        public Color LineColor
+        {
+            get { return _lineColor; }
+            set
+            {
+                _lineColor = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LineColor)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LineBrush)));
+            }
+        }
+
+        public Brush LineBrush => new SolidColorBrush(_lineColor);
+
+        public string BackgroundColorLabelText { get; } = "Pick background color";
+        private Color _backgroundColor = Colors.Black;
+        public Color BackgroundColor
+        {
+            get { return _backgroundColor; }
+            set
+            {
+                _backgroundColor = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundColor)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundBrush)));
+            }
+        }
+
+        public Brush BackgroundBrush => new SolidColorBrush(_backgroundColor);
+
+        private int _pointRadius = 10;
+
+        public int PointRadius
+        {
+            get { return _pointRadius; }
+            set
+            {
+                _pointRadius = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PointRadius)));
+            }
+        }
+
+
 
         private List<ChartPoint> _pointsCollection = new List<ChartPoint>();
         public List<ChartPoint> PointsCollection

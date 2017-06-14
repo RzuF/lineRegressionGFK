@@ -3,13 +3,13 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:local="clr-namespace:lineRegressionGFK"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
-        xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
         xmlns:vm="clr-namespace:lineRegressionGFK.VM"
         xmlns:converter="clr-namespace:lineRegressionGFK.Converters"
         mc:Ignorable="d"
-        Title="MainWindow" Height="400" Width="525">
+        Title="MainWindow" Height="651.203" Width="534.19">
     <Window.Resources>
         <vm:MainPageViewModel x:Key="MainPageViewModel" x:Name="MainPageViewModel"/>
         <converter:StringToInt32Converter x:Key="StringToInt32Converter"></converter:StringToInt32Converter>
@@ -25,7 +25,7 @@
             <ColumnDefinition Width="2*"/>
             <ColumnDefinition Width="8*"/>
         </Grid.ColumnDefinitions>
-        
+
         <StackPanel Grid.Column="0">
             <DockPanel Margin="6">
                 <Label Content="{Binding XLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
@@ -53,20 +53,21 @@
 
         <Grid Grid.Column="1" x:Name="ChartCanvas" Background="Orange">
             <Grid.RowDefinitions>
-                <RowDefinition Height="8*"></RowDefinition>
-                <RowDefinition Height="2*"></RowDefinition>
+                <RowDefinition Height="7*"></RowDefinition>
+                <RowDefinition Height="3*"></RowDefinition>
             </Grid.RowDefinitions>
-            
+
+            <Grid>
             <ItemsControl ItemsSource="{Binding Path=HorizontalLinesCollection}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <Canvas Background="Black" Margin="10">
+                            <Canvas Background="{Binding BackgroundBrush}" Margin="10">
                         </Canvas>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Rectangle Fill="{Binding LineColor}" Width="{Binding Size}" Height="1px" Opacity="{Binding Opacity}"></Rectangle>
+                            <Rectangle Fill="{Binding LineBrush, Source={StaticResource MainPageViewModel}}" Width="{Binding Size}" Height="1px" Opacity="{Binding Opacity}"></Rectangle>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
                 <ItemsControl.ItemContainerStyle>
@@ -84,7 +85,7 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Rectangle Fill="{Binding LineColor}" Height="{Binding Size}" Width="1px" Opacity="{Binding Opacity}"></Rectangle>
+                            <Rectangle Fill="{Binding LineBrush, Source={StaticResource MainPageViewModel}}" Height="{Binding Size}" Width="1px" Opacity="{Binding Opacity}"></Rectangle>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
                 <ItemsControl.ItemContainerStyle>
@@ -125,7 +126,7 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Ellipse Fill="White" Width="2" Height="2" />
+                        <Ellipse Fill="{Binding PointBrush, Source={StaticResource MainPageViewModel}}" Width="{Binding PointRadius, Source={StaticResource MainPageViewModel}}" Height="{Binding PointRadius, Source={StaticResource MainPageViewModel}}" />
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
                 <ItemsControl.ItemContainerStyle>
@@ -135,6 +136,7 @@
                     </Style>
                 </ItemsControl.ItemContainerStyle>
             </ItemsControl>
+            </Grid>
 
             <StackPanel Grid.Row="1">
                 <DockPanel Margin="6">
@@ -144,6 +146,18 @@
                 <DockPanel Margin="6">
                     <Label Content="{Binding XDeltaLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
                     <TextBox Text="{Binding LineWidthDelta, Mode=TwoWay, Converter={StaticResource StringToDoubleConverter}}" VerticalAlignment="Center"/>
+                </DockPanel>
+                <DockPanel Margin="6">
+                    <Label Content="{Binding PointColorLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
+                    <xctk:ColorPicker SelectedColor="{Binding PointColor}"/>
+                </DockPanel>
+                <DockPanel Margin="6">
+                    <Label Content="{Binding LineColorLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
+                    <xctk:ColorPicker SelectedColor="{Binding LineColor}"/>
+                </DockPanel>
+                <DockPanel Margin="6">
+                    <Label Content="{Binding BackgroundColorLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
+                    <xctk:ColorPicker SelectedColor="{Binding BackgroundColor}"/>
                 </DockPanel>
                 <TextBlock Text="{Binding RenderSize.Height}"></TextBlock>
                 <TextBlock Text="{Binding RenderSize.Width}"></TextBlock>
