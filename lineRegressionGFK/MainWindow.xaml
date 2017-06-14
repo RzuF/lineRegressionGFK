@@ -35,11 +35,11 @@
         <StackPanel Grid.Column="0">
             <DockPanel Margin="6">
                 <Label Content="{Binding XLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
-                <TextBox Text="{Binding CurrentXValue, Mode=TwoWay, Converter={StaticResource StringToInt32Converter}}" VerticalAlignment="Center"/>
+                <TextBox Text="{Binding CurrentXValue, Mode=TwoWay, Converter={StaticResource StringToDoubleConverter}}" VerticalAlignment="Center"/>
             </DockPanel>
             <DockPanel Margin="6">
                 <Label Content="{Binding YLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
-                <TextBox Text="{Binding CurrentYValue, Mode=TwoWay, Converter={StaticResource StringToInt32Converter}}" VerticalAlignment="Center"/>
+                <TextBox Text="{Binding CurrentYValue, Mode=TwoWay, Converter={StaticResource StringToDoubleConverter}}" VerticalAlignment="Center"/>
             </DockPanel>
             <Button Content="{Binding AddButtonText}" Command="{Binding AddButtonCommand}" Margin="6"></Button>
             <Button Content="{Binding FromFileText}" Command="{Binding FromFileCommand}" Margin="6"></Button>
@@ -48,12 +48,6 @@
             <ListView ItemsSource="{Binding PointsCollection}" Margin="6">
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <!--<StackPanel Orientation="Horizontal">
-                            <Label Content="F(" HorizontalAlignment="Left"></Label>
-                            <Label Content="{Binding X}" HorizontalAlignment="Left"></Label>
-                            <Label Content=") = " HorizontalAlignment="Left"></Label>
-                            <Label Content="{Binding Y}" HorizontalAlignment="Left"></Label>
-                        </StackPanel>-->
                         <Label>
                             <Label.Content>
                                 <MultiBinding Converter="{StaticResource PositionToStringMultiConverter}">
@@ -84,17 +78,23 @@
                     <ItemsControl ItemsSource="{Binding Path=HorizontalLinesCollection}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <Canvas Background="{Binding BackgroundBrush}" Margin="10">
+                                <Canvas Background="{Binding BackgroundBrush}">
                                 </Canvas>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Grid>
-                                    <Rectangle Fill="{Binding LineBrush, Source={StaticResource MainPageViewModel}}" Width="{Binding Size}" Height="1px" Opacity="{Binding Opacity}" VerticalAlignment="Bottom"></Rectangle>
+                                    <Rectangle Fill="{Binding LineBrush, Source={StaticResource MainPageViewModel}}" Width="{Binding Size}" Height="1px" Opacity="{Binding Opacity}" VerticalAlignment="Bottom">
+                                        <Rectangle.RenderTransform>
+                                            <TransformGroup>
+                                                <TranslateTransform X="{Binding OffsetX}"/>
+                                            </TransformGroup>
+                                        </Rectangle.RenderTransform>
+                                    </Rectangle>
                                     <TextBlock Text="{Binding StringValue}" Foreground="{Binding LineBrush, Source={StaticResource MainPageViewModel}}">
                                         <TextBlock.Margin>
-                                            <Thickness>15,0,0,0</Thickness>
+                                            <Thickness>0,0,0,0</Thickness>
                                         </TextBlock.Margin>
                                     </TextBlock>
                                 </Grid>
@@ -109,18 +109,24 @@
                     <ItemsControl ItemsSource="{Binding Path=VerticalLinesCollection}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <Canvas Background="Transparent" Margin="10">
+                                <Canvas Background="Transparent">
                                 </Canvas>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Grid>
-                                    <Rectangle Fill="{Binding LineBrush, Source={StaticResource MainPageViewModel}}" Width="1px" Height="{Binding Size}" Opacity="{Binding Opacity}" HorizontalAlignment="Left"></Rectangle>
+                                    <Rectangle Fill="{Binding LineBrush, Source={StaticResource MainPageViewModel}}" Width="1px" Height="{Binding Size}" Opacity="{Binding Opacity}" HorizontalAlignment="Left">
+                                    </Rectangle>
                                     <TextBlock Text="{Binding StringValue}" Foreground="{Binding LineBrush, Source={StaticResource MainPageViewModel}}" VerticalAlignment="Bottom">
                                         <TextBlock.Margin>
                                             <Thickness>0,0,0,0</Thickness>
                                         </TextBlock.Margin>
+                                        <TextBlock.RenderTransform>
+                                            <TransformGroup>
+                                                <TranslateTransform Y="{Binding OffsetX}"/>
+                                            </TransformGroup>
+                                        </TextBlock.RenderTransform>
                                     </TextBlock>
                                 </Grid>
                             </DataTemplate>
@@ -135,7 +141,7 @@
                     <ItemsControl ItemsSource="{Binding Path=PointsCollection}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <Canvas Background="Transparent" Margin="10">
+                                <Canvas Background="Transparent">
                                     <i:Interaction.Triggers>
                                         <i:EventTrigger EventName="SizeChanged">
                                             <i:InvokeCommandAction Command="{Binding SizeChangedCommand}">
@@ -154,6 +160,13 @@
                                                         <Binding Path="ActualHeight" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type Canvas}}"/>
                                                         <Binding Path="ActualWidth" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type Canvas}}"/>
                                                     </MultiBinding>
+                                                </i:InvokeCommandAction.CommandParameter>
+                                            </i:InvokeCommandAction>
+                                        </i:EventTrigger>
+                                        <i:EventTrigger EventName="Loaded">
+                                            <i:InvokeCommandAction Command="{Binding ToCenterCommand, Mode=OneTime}">
+                                                <i:InvokeCommandAction.CommandParameter>
+                                                    <Binding RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type Grid}}"/>
                                                 </i:InvokeCommandAction.CommandParameter>
                                             </i:InvokeCommandAction>
                                         </i:EventTrigger>
@@ -187,6 +200,11 @@
             </Grid>
 
             <StackPanel Grid.Row="1">
+                <Button Content="{Binding ToCenterText}" Command="{Binding ToCenterCommand}" Margin="6">
+                    <Button.CommandParameter>
+                        <Binding Path="Children[0].Children[0]" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type Grid}}"/>
+                    </Button.CommandParameter>
+                </Button>
                 <DockPanel Margin="6">
                     <Label Content="{Binding YDeltaLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
                     <TextBox Text="{Binding LineHighDelta, Mode=TwoWay, Converter={StaticResource StringToDoubleConverter}}" VerticalAlignment="Center"/>
@@ -215,6 +233,10 @@
                 <DockPanel Margin="6">
                     <Label Content="{Binding ScaleLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
                     <TextBox Text="{Binding Scale, Mode=TwoWay, Converter={StaticResource StringToDoubleConverter}}" VerticalAlignment="Center"/>
+                </DockPanel>
+                <DockPanel Margin="6">
+                    <Label Content="{Binding PointRadiusLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
+                    <TextBox Text="{Binding PointRadius, Mode=TwoWay, Converter={StaticResource StringToInt32Converter}}" VerticalAlignment="Center"/>
                 </DockPanel>
             </StackPanel>
         </Grid>
