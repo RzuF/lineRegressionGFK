@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using lineRegressionGFK.Annotations;
 
 namespace lineRegressionGFK.Models
 {
-    public class ChartPoint
+    public class ChartPoint : INotifyPropertyChanged
     {
         private double _x;
 
@@ -18,7 +20,7 @@ namespace lineRegressionGFK.Models
             set { _x = value; }
         }
 
-        public double XForChart => _x + 10;
+        public double XForChart { get; set; }
         // TODO: Make cooridnated dependent of thr rest of the points
 
         private double _y;
@@ -27,7 +29,14 @@ namespace lineRegressionGFK.Models
             set { _y = value; }
         }
 
-        public double YForChart => _y + 10;
+        public double YForChart { get; set; }
         // TODO: Make cooridnated dependent of thr rest of the points
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 }
