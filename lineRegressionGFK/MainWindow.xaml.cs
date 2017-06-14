@@ -76,7 +76,7 @@ namespace lineRegressionGFK
                         
             var mousePosition = e.GetPosition(sender as Grid);
 
-            TranslateTransform translateTransform = new TranslateTransform((mousePosition.X - _lastMousePosition.X) / (Resources["MainPageViewModel"] as MainPageViewModel).Scale, (mousePosition.Y - _lastMousePosition.Y) / (Resources["MainPageViewModel"] as MainPageViewModel).Scale);
+            TranslateTransform translateTransform = new TranslateTransform((mousePosition.X - _lastMousePosition.X), (mousePosition.Y - _lastMousePosition.Y));
             _lastMousePosition = mousePosition;
             TransformGroup transformGroup = new TransformGroup();
             TransformGroup tg = (TransformGroup)ChartGridContainer.RenderTransform;
@@ -98,7 +98,7 @@ namespace lineRegressionGFK
             BindingOperations.SetBinding(scaleTransform, ScaleTransform.ScaleYProperty, sliderRBind1);
 
             transformGroup.Children.Add(translateTransform);
-            transformGroup.Children.Add(scaleTransform);
+            //transformGroup.Children.Add(scaleTransform);
 
             ChartGridContainer.RenderTransform = transformGroup;
             int x = 0;

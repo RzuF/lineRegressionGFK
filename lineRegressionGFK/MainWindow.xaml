@@ -7,6 +7,7 @@
         xmlns:local="clr-namespace:lineRegressionGFK"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:vm="clr-namespace:lineRegressionGFK.VM"
+        xmlns:helpers="clr-namespace:lineRegressionGFK.Helpers"
         xmlns:models="clr-namespace:lineRegressionGFK.Models"
         xmlns:converter="clr-namespace:lineRegressionGFK.Converters"
         mc:Ignorable="d"
@@ -22,6 +23,8 @@
         <converter:PointPositionScaleConverter x:Key="PointPositionScaleConverter"></converter:PointPositionScaleConverter>
         <converter:SizePartsToSizeConverter x:Key="SizePartsToSizeConverter"></converter:SizePartsToSizeConverter>
         <converter:PositionToStringMultiConverter x:Key="PositionToStringMultiConverter"></converter:PositionToStringMultiConverter>
+        <converter:ScalePositionMultiConverter x:Key="ScalePositionMultiConverter"></converter:ScalePositionMultiConverter>
+        <converter:DoubleInversionConverter x:Key="DoubleInversionConverter"></converter:DoubleInversionConverter>
     </Window.Resources>
     <Window.DataContext>
         <StaticResource ResourceKey="MainPageViewModel"></StaticResource>
@@ -69,12 +72,6 @@
 
             <Grid ClipToBounds="True" Margin="10" MouseLeftButtonDown="UIElement_OnMouseLeftButtonDown" MouseLeftButtonUp="UIElement_OnMouseLeftButtonUp" MouseLeave="UIElement_OnMouseLeave" MouseMove="UIElement_OnMouseMove" Background="{Binding BackgroundBrush}">
                 <Grid Grid.Row="0" x:Name="ChartGridContainer" RenderTransformOrigin="0.5,0.5">
-                    <Grid.RenderTransform>
-                        <TransformGroup>
-                            <ScaleTransform ScaleX="{Binding Scale}"/>
-                            <ScaleTransform ScaleY="{Binding Scale}"/>
-                        </TransformGroup>
-                    </Grid.RenderTransform>
                     <ItemsControl ItemsSource="{Binding Path=HorizontalLinesCollection}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -94,7 +91,7 @@
                                     </Rectangle>
                                     <TextBlock Text="{Binding StringValue}" Foreground="{Binding LineBrush, Source={StaticResource MainPageViewModel}}">
                                         <TextBlock.Margin>
-                                            <Thickness>0,0,0,0</Thickness>
+                                            <Thickness>5,0,0,0</Thickness>
                                         </TextBlock.Margin>
                                     </TextBlock>
                                 </Grid>
@@ -102,7 +99,14 @@
                         </ItemsControl.ItemTemplate>
                         <ItemsControl.ItemContainerStyle>
                             <Style>
-                                <Setter Property="Canvas.Bottom" Value="{Binding Path=PositionFromBeggining}" />
+                                <Setter Property="Canvas.Top">
+                                    <Setter.Value>
+                                        <MultiBinding Converter="{StaticResource ScalePositionMultiConverter}">
+                                            <Binding Path="PositionFromBeggining"/>
+                                            <Binding Path="Scale" Source="{StaticResource MainPageViewModel}"/>
+                                        </MultiBinding>
+                                    </Setter.Value>
+                                </Setter>
                             </Style>
                         </ItemsControl.ItemContainerStyle>
                     </ItemsControl>
@@ -117,10 +121,16 @@
                             <DataTemplate>
                                 <Grid>
                                     <Rectangle Fill="{Binding LineBrush, Source={StaticResource MainPageViewModel}}" Width="1px" Height="{Binding Size}" Opacity="{Binding Opacity}" HorizontalAlignment="Left">
+                                        <Rectangle.RenderTransform>
+                                        <TransformGroup>
+                                            <!--<TranslateTransform X="{Binding OffsetX}"/>-->
+                                            <TranslateTransform Y="{Binding OffsetX}"></TranslateTransform>
+                                        </TransformGroup>
+                                        </Rectangle.RenderTransform>
                                     </Rectangle>
-                                    <TextBlock Text="{Binding StringValue}" Foreground="{Binding LineBrush, Source={StaticResource MainPageViewModel}}" VerticalAlignment="Bottom">
+                                    <TextBlock Text="{Binding StringValue}" Foreground="{Binding LineBrush, Source={StaticResource MainPageViewModel}}" VerticalAlignment="Center">
                                         <TextBlock.Margin>
-                                            <Thickness>0,0,0,0</Thickness>
+                                            <Thickness>5,60,0,0</Thickness>
                                         </TextBlock.Margin>
                                         <TextBlock.RenderTransform>
                                             <TransformGroup>
@@ -133,7 +143,14 @@
                         </ItemsControl.ItemTemplate>
                         <ItemsControl.ItemContainerStyle>
                             <Style>
-                                <Setter Property="Canvas.Left" Value="{Binding Path=PositionFromBeggining}" />
+                                <Setter Property="Canvas.Left">
+                                    <Setter.Value>
+                                        <MultiBinding Converter="{StaticResource ScalePositionMultiConverter}">
+                                            <Binding Path="PositionFromBeggining"/>
+                                            <Binding Path="Scale" Source="{StaticResource MainPageViewModel}"/>
+                                        </MultiBinding>
+                                    </Setter.Value>
+                                </Setter>
                             </Style>
                         </ItemsControl.ItemContainerStyle>
                     </ItemsControl>
@@ -191,11 +208,42 @@
                         </ItemsControl.ItemTemplate>
                         <ItemsControl.ItemContainerStyle>
                             <Style>
-                                <Setter Property="Canvas.Bottom" Value="{Binding Path=YForChart}" />
-                                <Setter Property="Canvas.Left" Value="{Binding Path=XForChart}" />
+                                <Setter Property="Canvas.Top">
+                                    <Setter.Value>
+                                        <MultiBinding Converter="{StaticResource ScalePositionMultiConverter}">
+                                            <Binding Path="YForChart"/>
+                                            <Binding Path="Scale" Source="{StaticResource MainPageViewModel}"/>
+                                        </MultiBinding>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter Property="Canvas.Left">
+                                    <Setter.Value>
+                                        <MultiBinding Converter="{StaticResource ScalePositionMultiConverter}">
+                                            <Binding Path="XForChart"/>
+                                            <Binding Path="Scale" Source="{StaticResource MainPageViewModel}"/>
+                                        </MultiBinding>
+                                    </Setter.Value>
+                                </Setter>
                             </Style>
                         </ItemsControl.ItemContainerStyle>
                     </ItemsControl>
+                    <Rectangle Fill="{Binding RegressionLine.Brush}" Width="{Binding RegressionLine.Size}" Height="2px" RenderTransformOrigin="0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
+                        <Rectangle.RenderTransform>
+                            <TransformGroup>
+                                <TranslateTransform X="{Binding RegressionLine.OffsetX}"/>
+                                <RotateTransform Angle="{Binding RegressionLine.Alpha}"></RotateTransform>
+                                <TranslateTransform Y="{Binding RegressionLine.YTransform}"/>
+                            </TransformGroup>
+                        </Rectangle.RenderTransform>
+                    </Rectangle>
+                    <Rectangle Fill="{Binding RegressionLine.Brush}" Width="{Binding RegressionLine.Size}" Height="2px" RenderTransformOrigin="0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
+                        <Rectangle.RenderTransform>
+                            <TransformGroup>
+                                <RotateTransform Angle="{Binding RegressionLine.Alpha}"></RotateTransform>
+                                <TranslateTransform Y="{Binding RegressionLine.YTransform}"/>
+                            </TransformGroup>
+                        </Rectangle.RenderTransform>
+                    </Rectangle>
                 </Grid>
             </Grid>
 
@@ -232,7 +280,7 @@
                 </StackPanel>
                 <DockPanel Margin="6">
                     <Label Content="{Binding ScaleLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
-                    <TextBox Text="{Binding Scale, Mode=TwoWay, Converter={StaticResource StringToDoubleConverter}}" VerticalAlignment="Center"/>
+                    <TextBox Text="{Binding Scale, Mode=TwoWay, Converter={StaticResource StringToDoubleConverter}}" helpers:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text" VerticalAlignment="Center"/>
                 </DockPanel>
                 <DockPanel Margin="6">
                     <Label Content="{Binding PointRadiusLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>

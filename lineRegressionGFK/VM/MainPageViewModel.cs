@@ -73,6 +73,16 @@ namespace lineRegressionGFK.VM
                 X = xValue,
                 Y = yValue
             });
+            if (PointsCollection.Count > 1)
+            {
+                var regression = Regression.Linear(PointsCollection.Select(x => x.X).ToArray(), PointsCollection.Select(x => x.Y).ToArray());
+                RegressionLine = new ChartRegressionLine()
+                {
+                    AParameter = regression.Item1,
+                    BParameter = regression.Item2
+                };
+            }
+            
             UpdateAllChartElements();
         }
 
@@ -81,11 +91,9 @@ namespace lineRegressionGFK.VM
             List<ChartPoint> _newList = new List<ChartPoint>();
 
             foreach (var chartPoint in PointsCollection)
-            {
-                if (_renderSize.Height == 0 || _renderSize.Width == 0)
-                    break;
-                chartPoint.XForChart = (double)(chartPoint.X / MaxXValue * (_renderSize.Width)) - (double)PointRadius/2.0;
-                chartPoint.YForChart = (double)(chartPoint.Y / MaxYValue * (_renderSize.Height)) - (double)PointRadius / 2.0;
+            {                
+                chartPoint.XForChart = chartPoint.X - (double)PointRadius / Scale / 2.0;
+                chartPoint.YForChart = -chartPoint.Y + 15 / Scale - (double)PointRadius / Scale / 2.0;
                 _newList.Add(chartPoint);
             }
 
@@ -102,12 +110,12 @@ namespace lineRegressionGFK.VM
                 if (_renderSize.Height == 0)
                     break;
                 var max = MaxYValue.Value > -MinYValue.Value ? MaxYValue.Value : -MinYValue.Value;
-                double position = i * LineHighDelta / max * (_renderSize.Height);
-                if (position > _renderSize.Height)
+                double position = i * LineHighDelta;
+                if (i * LineHighDelta > max && position * Scale > _renderSize.Height)
                     break;
-                _newList.Add(new ChartLine() {PositionFromBeggining = position, Size = _renderSize.Width*2, Opacity = LineHorizontalOpacity, StringValue = $"{i * LineHighDelta}"});
+                _newList.Add(new ChartLine() {PositionFromBeggining = position, Size = _renderSize.Width * 2 > max * 2 * Scale ? _renderSize.Width * 2 : max * 2 * Scale, Opacity = LineHorizontalOpacity, StringValue = $"{-i * LineHighDelta}"});
                 if (i != 0)
-                    _newList.Add(new ChartLine() { PositionFromBeggining = -position, Size = _renderSize.Width*2, Opacity = LineHorizontalOpacity, StringValue = $"{-i * LineHighDelta}" });
+                    _newList.Add(new ChartLine() { PositionFromBeggining = -position, Size = _renderSize.Width * 2 > max * 2 * Scale ? _renderSize.Width * 2 : max * 2 * Scale, Opacity = LineHorizontalOpacity, StringValue = $"{i * LineHighDelta}" });
             }
             HorizontalLinesCollection = _newList;
         }
@@ -120,14 +128,25 @@ namespace lineRegressionGFK.VM
                 if (_renderSize.Width == 0)
                     break;
                 var max = MaxXValue.Value > -MinXValue.Value ? MaxXValue.Value : -MinXValue.Value;
-                double position = i * LineWidthDelta / max * (_renderSize.Width);
-                if (position > _renderSize.Width)
+                double position = i * LineWidthDelta;
+                if (i * LineWidthDelta > max && position * Scale > _renderSize.Width)
                     break;
-                _newList.Add(new ChartLine() { PositionFromBeggining = position, Size = _renderSize.Height*2, Opacity = LineVerticalOpacity, StringValue = $"{i * LineWidthDelta}" });
+                _newList.Add(new ChartLine() { PositionFromBeggining = position, Size = _renderSize.Height*2 > max * 2 * Scale ? _renderSize.Height * 2 : max * 2 * Scale, Opacity = LineVerticalOpacity, StringValue = $"{i * LineWidthDelta}" });
                 if(i!=0)
-                    _newList.Add(new ChartLine() { PositionFromBeggining = -position, Size = _renderSize.Height*2, Opacity = LineVerticalOpacity, StringValue = $"{-i * LineWidthDelta}" });
+                    _newList.Add(new ChartLine() { PositionFromBeggining = -position, Size = _renderSize.Height * 2 > max * 2 * Scale ? _renderSize.Height * 2 : max * 2 * Scale, Opacity = LineVerticalOpacity, StringValue = $"{-i * LineWidthDelta}" });
             }
             VerticalLinesCollection = _newList;
+        }
+
+        void UpdateRegressionLine()
+        {
+            RegressionLine = new ChartRegressionLine()
+            {
+                AParameter = RegressionLine.AParameter,
+                BParameter = RegressionLine.BParameter,
+                Size = _renderSize.Width*2,
+                YTransform = RegressionLine.BParameter * Scale +15
+            };
         }
 
         void UpdateAllChartElements()
@@ -135,6 +154,7 @@ namespace lineRegressionGFK.VM
             UpdateChartPoints();
             UpdateVerticalLines();
             UpdateHorizontalLines();
+            UpdateRegressionLine();
         }
 
         #endregion
@@ -194,6 +214,7 @@ namespace lineRegressionGFK.VM
             set
             {
                 _pointRadius = value;
+                UpdateChartPoints();
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PointRadius)));
             }
         }
@@ -323,7 +344,7 @@ namespace lineRegressionGFK.VM
         }
 
         public string ScaleLabelText { get; } = "Scale";
-        private double _scale = 1;
+        private double _scale = 3;
 
         public double Scale
         {
@@ -331,18 +352,30 @@ namespace lineRegressionGFK.VM
             set
             {
                 _scale = value;
+                //UpdateChartPoints();
+                UpdateAllChartElements();
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Scale)));
             }
+        }        
+
+        private ChartRegressionLine _regressionLine = new ChartRegressionLine();
+
+        public ChartRegressionLine RegressionLine
+        {
+            get { return _regressionLine; }
+            set
+            {
+                _regressionLine = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RegressionLine)));
+            }            
+        
         }
 
-        public double ChartGridHeight { get; set; }
-        public double ChartGridWidth { get; set; }
-
-#endregion
+        #endregion
 
         #region Menu Properties
 
-                public string XLabelText { get; } = "X: ";
+        public string XLabelText { get; } = "X: ";
                 public string YLabelText { get; } = "Y: ";
 
                 private double _currentXValue;
@@ -377,12 +410,7 @@ namespace lineRegressionGFK.VM
                     {
                         AddPointToPointsCollection(CurrentXValue, CurrentYValue);
 
-                        CurrentXValue = CurrentYValue = 0;
-
-                        if(PointsCollection.Count > 1)
-                        {
-                            var line = Fit.Line(PointsCollection.Select(x => x.X).ToArray(), PointsCollection.Select(x => x.Y).ToArray());
-                        }
+                        CurrentXValue = CurrentYValue = 0;                        
                     });
 
                     public string FromFileText => "From file...";
@@ -446,7 +474,6 @@ namespace lineRegressionGFK.VM
                     public ICommand SizeChangedCommand => _sizeChangedCommand ?? new RelayCommand((obj) =>
                     {
                         RenderSize = (Size) obj;
-                        UpdateAllChartElements();
                     });
 
                     private ICommand _radioChangedCommand;
@@ -462,22 +489,13 @@ namespace lineRegressionGFK.VM
                     public ICommand ToCenterCommand => _toCenterCommand ?? new RelayCommand((obj) =>
                     {
                         TransformGroup transformGroup = new TransformGroup();
-                        TranslateTransform translateTransform = new TranslateTransform(_renderSize.Width/2, -_renderSize.Height/2);
-
-                        var sliderRBind1 = new System.Windows.Data.Binding
-                        {
-                            Source = this,
-                            Path = new PropertyPath("Scale")
-                        };
-
-                        ScaleTransform scaleTransform = new ScaleTransform();
-                        BindingOperations.SetBinding(scaleTransform, ScaleTransform.ScaleXProperty, sliderRBind1);
-                        BindingOperations.SetBinding(scaleTransform, ScaleTransform.ScaleYProperty, sliderRBind1);
+                        TranslateTransform translateTransform = new TranslateTransform(_renderSize.Width/2, _renderSize.Height/2);
 
                         transformGroup.Children.Add(translateTransform);
-                        transformGroup.Children.Add(scaleTransform);
 
                         (obj as Grid).RenderTransform = transformGroup;
+
+                        Scale = Scale;
                     });
 
         #endregion
