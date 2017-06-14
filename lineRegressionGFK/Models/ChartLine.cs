@@ -12,7 +12,7 @@ namespace lineRegressionGFK.Models
         public double PositionFromBeggining { get; set; }
 
         public double Size { get; set; }
-        public Brush LineColor { get; set; }
+        public string StringValue { get; set; }
 
         public double Opacity { get; set; }
     }

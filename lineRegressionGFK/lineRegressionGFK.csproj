@@ -92,12 +92,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converters\BoolToVisibilityConverter.cs" />
     <Compile Include="Converters\PointPositionScaleConverter.cs" />
     <Compile Include="Converters\SizePartsToSizeConverter.cs" />
     <Compile Include="Converters\StringToDoubleConverter.cs" />
     <Compile Include="Converters\StringToInt32Converter.cs" />
     <Compile Include="Models\ChartLine.cs" />
     <Compile Include="Models\ChartPoint.cs" />
+    <Compile Include="Models\PointTypeEnum.cs" />
     <Compile Include="Models\RelayCommand.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="VM\MainPageViewModel.cs" />

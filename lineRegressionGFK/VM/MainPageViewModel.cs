@@ -80,8 +80,8 @@ namespace lineRegressionGFK.VM
 
             foreach (var chartPoint in PointsCollection)
             {
-                chartPoint.XForChart = (int)(chartPoint.X / MaxXValue * (_renderSize.Width - 20)) + 10;
-                chartPoint.YForChart = (int)(chartPoint.Y / MaxYValue * (_renderSize.Height - 20)) + 10;
+                chartPoint.XForChart = (int)(chartPoint.X / MaxXValue * (_renderSize.Width - 20)) + 10 - PointRadius/2;
+                chartPoint.YForChart = (int)(chartPoint.Y / MaxYValue * (_renderSize.Height - 20)) + 10 - PointRadius / 2;
                 _newList.Add(chartPoint);
             }
 
@@ -91,13 +91,12 @@ namespace lineRegressionGFK.VM
         void UpdateHorizontalLines()
         {
             List<ChartLine> _newList = new List<ChartLine>();
-            double currentHight = 0;
             for (int i = 0; ;i++)
             {
                 double position = i * LineHighDelta / MaxYValue.Value * (_renderSize.Height - 20) + 10;
                 if (position > _renderSize.Height)
                     break;
-                _newList.Add(new ChartLine() {PositionFromBeggining = position, Size = _renderSize.Width, Opacity = LineHorizontalOpacity});
+                _newList.Add(new ChartLine() {PositionFromBeggining = position, Size = _renderSize.Width, Opacity = LineHorizontalOpacity, StringValue = $"{i * LineHighDelta}"});
             }
             HorizontalLinesCollection = _newList;
         }
@@ -105,13 +104,12 @@ namespace lineRegressionGFK.VM
         void UpdateVerticalLines()
         {
             List<ChartLine> _newList = new List<ChartLine>();
-            double currentHight = 0;
             for (int i = 0; ; i++)
             {
                 double position = i * LineWidthDelta / MaxXValue.Value * (_renderSize.Width - 20) + 10;
                 if (position > _renderSize.Width)
                     break;
-                _newList.Add(new ChartLine() { PositionFromBeggining = position, Size = _renderSize.Height, Opacity = LineVerticalOpacity});
+                _newList.Add(new ChartLine() { PositionFromBeggining = position, Size = _renderSize.Height, Opacity = LineVerticalOpacity, StringValue = $"{i * LineWidthDelta}" });
             }
             VerticalLinesCollection = _newList;
         }
@@ -184,7 +182,44 @@ namespace lineRegressionGFK.VM
             }
         }
 
+        public string EllipseTypePointLabelText { get; } = "Ellipse";
+        private bool _ellipseTypePoint = true;
 
+        public bool EllipseTypePoint
+        {
+            get { return _ellipseTypePoint; }
+            set
+            {
+                _ellipseTypePoint = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(EllipseTypePoint)));
+            }
+        }
+
+        public string RectangleTypePointLabelText { get; } = "Rectangle";
+        private bool _rectangleTypePoint = false;
+
+        public bool RectangleTypePoint
+        {
+            get { return _rectangleTypePoint; }
+            set
+            {
+                _rectangleTypePoint = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RectangleTypePoint)));
+            }
+        }
+
+        public string DiamondTypePointLabelText { get; } = "Diamond";
+        private bool _diamondTypePoint = false;
+
+        public bool DiamondTypePoint
+        {
+            get { return _diamondTypePoint; }
+            set
+            {
+                _diamondTypePoint = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DiamondTypePoint)));
+            }
+        }
 
         private List<ChartPoint> _pointsCollection = new List<ChartPoint>();
         public List<ChartPoint> PointsCollection
@@ -276,98 +311,103 @@ namespace lineRegressionGFK.VM
 
 #endregion
 
-#region Menu Properties
+        #region Menu Properties
 
-        public string XLabelText { get; } = "X: ";
-        public string YLabelText { get; } = "Y: ";
+                public string XLabelText { get; } = "X: ";
+                public string YLabelText { get; } = "Y: ";
 
-        private int _currentXValue;
+                private int _currentXValue;
 
-        public int CurrentXValue
-        {
-            get { return _currentXValue; }
-            set
-            {
-                _currentXValue = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentXValue)));
-            }
-        }
-        private int _currentYValue;
-
-        public int CurrentYValue
-        {
-            get { return _currentYValue; }
-            set
-            {
-                _currentYValue = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentYValue)));
-            }
-        }
-
-        public string  linear1 { get; set; }
-
-#region Button Properties
-
-            public string AddButtonText => "Add";
-            private ICommand _addButtonCommand;
-
-            public ICommand AddButtonCommand => _addButtonCommand ?? new RelayCommand((object obj) =>
-            {
-                AddPointToPointsCollection(CurrentXValue, CurrentYValue);
-
-                CurrentXValue = CurrentYValue = 0;
-
-                if(PointsCollection.Count > 1)
+                public int CurrentXValue
                 {
-                    var line = Fit.Line(PointsCollection.Select(x => x.X).ToArray(), PointsCollection.Select(x => x.Y).ToArray());
-                }
-            });
-
-            public string FromFileText => "From file...";
-            private ICommand _fromFileCommand;
-
-            public ICommand FromFileCommand => _fromFileCommand ?? new RelayCommand((obj) =>
-            {
-                // TODO: Import points from file
-            });
-
-            public string SaveAsText => "From file...";
-            private ICommand _saveAsCommand;            
-
-            public ICommand SaveAsCommand => _saveAsCommand ?? new RelayCommand((obj) =>
-                {                
-                    var saveFileDialog = new SaveFileDialog() {RestoreDirectory = true};
-
-                    if (saveFileDialog.ShowDialog() == DialogResult.OK)
-                    {                    
-                        var renderTargetBitmap = new RenderTargetBitmap((int)MainWindow.ChartCanvas.RenderSize.Width, (int)MainWindow.ChartCanvas.RenderSize.Height, 96d, 85d, PixelFormats.Pbgra32);
-                        renderTargetBitmap.Render(MainWindow.ChartCanvas);
-                        using (var saveStream = saveFileDialog.OpenFile())
-                        {
-                            var encoder = new PngBitmapEncoder();
-                            encoder.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
-                            encoder.Save(saveStream);
-                        }
+                    get { return _currentXValue; }
+                    set
+                    {
+                        _currentXValue = value;
+                        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentXValue)));
                     }
+                }
+                private int _currentYValue;
+
+                public int CurrentYValue
+                {
+                    get { return _currentYValue; }
+                    set
+                    {
+                        _currentYValue = value;
+                        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentYValue)));
+                    }
+                }
+
+        #region Button Properties
+
+                    public string AddButtonText => "Add";
+                    private ICommand _addButtonCommand;
+
+                    public ICommand AddButtonCommand => _addButtonCommand ?? new RelayCommand((object obj) =>
+                    {
+                        AddPointToPointsCollection(CurrentXValue, CurrentYValue);
+
+                        CurrentXValue = CurrentYValue = 0;
+
+                        if(PointsCollection.Count > 1)
+                        {
+                            var line = Fit.Line(PointsCollection.Select(x => x.X).ToArray(), PointsCollection.Select(x => x.Y).ToArray());
+                        }
+                    });
+
+                    public string FromFileText => "From file...";
+                    private ICommand _fromFileCommand;
+
+                    public ICommand FromFileCommand => _fromFileCommand ?? new RelayCommand((obj) =>
+                    {
+                        // TODO: Import points from file
+                    });
+
+                    public string SaveAsText => "Save chart as...";
+                    private ICommand _saveAsCommand;            
+
+                    public ICommand SaveAsCommand => _saveAsCommand ?? new RelayCommand((obj) =>
+                        {                
+                            var saveFileDialog = new SaveFileDialog() {RestoreDirectory = true};
+
+                            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                            {                    
+                                var renderTargetBitmap = new RenderTargetBitmap((int)MainWindow.ChartGridContainer.RenderSize.Width, (int)MainWindow.ChartGridContainer.RenderSize.Height, 96d, 85d, PixelFormats.Pbgra32);
+                                renderTargetBitmap.Render(MainWindow.ChartGridContainer);
+                                using (var saveStream = saveFileDialog.OpenFile())
+                                {
+                                    var encoder = new PngBitmapEncoder();
+                                    encoder.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
+                                    encoder.Save(saveStream);
+                                }
+                            }
+                        });
+
+                    private ICommand _sizeChangedCommand;
+
+                    public ICommand SizeChangedCommand => _sizeChangedCommand ?? new RelayCommand((obj) =>
+                    {
+                        RenderSize = (Size) obj;
+                        UpdateAllChartElements();
+                    });
+
+                private ICommand _radioChangedCommand;
+
+                public ICommand RadioChangedCommand => _radioChangedCommand ?? new RelayCommand((obj) =>
+                {
+            
                 });
 
-            private ICommand _sizeChangedCommand;
+                #endregion
 
-            public ICommand SizeChangedCommand => _sizeChangedCommand ?? new RelayCommand((obj) =>
-            {
-                RenderSize = (Size) obj;
-                UpdateAllChartElements();
-            });
+                public MainPageViewModel()
+                {
+                    if (Instance == null)
+                        Instance = this;
+                }
 
-        #endregion
-
-        public MainPageViewModel()
-        {
-            if (Instance == null)
-                Instance = this;
-        }
-
-        #endregion
+                #endregion
 
         #region Public Methods
 
