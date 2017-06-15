@@ -63,5 +63,6 @@ namespace lineRegressionGFK.Models
             Vector<double> vectorA = matrixX.Solve(vectorY);
             return vectorA.ToArray();
         }
+        // TODO Errors 
     }
 }
