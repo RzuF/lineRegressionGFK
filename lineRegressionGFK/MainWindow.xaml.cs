@@ -15,7 +15,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using lineRegressionGFK.VM;
-using System.Windows.Forms;
 using lineRegressionGFK.Models;
 using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 

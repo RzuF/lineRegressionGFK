@@ -49,6 +49,7 @@
             <Button Content="{Binding FromFileText}" Command="{Binding FromFileCommand}" Margin="6"></Button>
             <Button Content="{Binding SaveAsText}" Command="{Binding SaveAsCommand}" Margin="6"></Button>
             <Button Content="{Binding ClearText}" Command="{Binding ClearCommand}" Margin="6"></Button>
+            <Button Content="{Binding PrintText}" Command="{Binding PrintCommand}" Margin="6"></Button>
             <ListView ItemsSource="{Binding PointsCollection}" Margin="6">
                 <ListView.ItemTemplate>
                     <DataTemplate>

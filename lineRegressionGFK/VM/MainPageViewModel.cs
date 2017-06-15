@@ -20,6 +20,8 @@ using lineRegressionGFK.Annotations;
 using lineRegressionGFK.Helpers;
 using lineRegressionGFK.Models;
 using MathNet.Numerics;
+using Microsoft.Win32;
+using OpenFileDialog = System.Windows.Forms.OpenFileDialog;
 
 namespace lineRegressionGFK.VM
 {
@@ -570,7 +572,7 @@ namespace lineRegressionGFK.VM
 
                     public ICommand SaveAsCommand => _saveAsCommand ?? new RelayCommand((obj) =>
                         {                
-                            var saveFileDialog = new SaveFileDialog() {RestoreDirectory = true};
+                            var saveFileDialog = new System.Windows.Forms.SaveFileDialog() {RestoreDirectory = true};
 
                             if (saveFileDialog.ShowDialog() == DialogResult.OK)
                             {                    
@@ -612,9 +614,13 @@ namespace lineRegressionGFK.VM
                     public string PrintText  => "Print Chart";
                     private ICommand _printCommand;
 
-                    public ICommand PrintCommand => _radioChangedCommand ?? new RelayCommand((obj) =>
+                    public ICommand PrintCommand => _printCommand ?? new RelayCommand((obj) =>
                     {
-
+                        var printDialog = new System.Windows.Controls.PrintDialog();
+                        if (printDialog.ShowDialog() == true)
+                        {
+                            printDialog.PrintVisual(MainWindow.ChartGrid, "Chart");
+                        }
                     });
 
 

@@ -18,8 +18,11 @@ namespace lineRegressionGFK.Converters
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            int output = 0;
+            int output;
             int.TryParse((string)value, out output);
+
+            if (output < 0)
+                output *= -1;
 
             return output;
         }
