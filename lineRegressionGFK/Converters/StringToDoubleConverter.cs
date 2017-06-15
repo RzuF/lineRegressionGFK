@@ -18,10 +18,12 @@ namespace lineRegressionGFK.Converters
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            double output = 0;
-            double.TryParse((string)value, out output);
-
-            return output;
+            double output;
+            string alteredInput = ((string) value).Replace(",", ".");
+            if (double.TryParse(alteredInput, NumberStyles.Any, new CultureInfo("en-US"), out output))
+                return output;
+            else
+                return 1;
         }
     }
 }

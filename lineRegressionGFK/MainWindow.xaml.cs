@@ -26,8 +26,13 @@ namespace lineRegressionGFK
     /// </summary>
     public partial class MainWindow : Window
     {
-        private Point _lastMousePosition;
-        
+        private Point _lastMousePositionChartGrid;
+        private Point _lastMousePositionInfoFrame;
+
+        private bool _manipulationStartedChartGrid;
+        private bool _manipulationStartedInfoFrame;
+        private bool _canManipulateChart = true;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -53,55 +58,101 @@ namespace lineRegressionGFK
 #endif            
         }
 
-        private void UIElement_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void ChartGrid_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            MainPageViewModel.ManipulationStarted = true;
-            _lastMousePosition = e.GetPosition(sender as Grid);
-        }
-
-        private void UIElement_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            MainPageViewModel.ManipulationStarted = false;            
-        }
-
-        private void UIElement_OnMouseLeave(object sender, MouseEventArgs e)
-        {
-            MainPageViewModel.ManipulationStarted = false;
-        }
-
-        private void UIElement_OnMouseMove(object sender, MouseEventArgs e)
-        {
-            if(!MainPageViewModel.ManipulationStarted)
-                return;
-                        
-            var mousePosition = e.GetPosition(sender as Grid);
-
-            TranslateTransform translateTransform = new TranslateTransform((mousePosition.X - _lastMousePosition.X), (mousePosition.Y - _lastMousePosition.Y));
-            _lastMousePosition = mousePosition;
-            TransformGroup transformGroup = new TransformGroup();
-            TransformGroup tg = (TransformGroup)ChartGridContainer.RenderTransform;
-            foreach (Transform t in tg.Children)
-                if (t is TranslateTransform)
-                {
-                    translateTransform.X += (t as TranslateTransform).X;
-                    translateTransform.Y += (t as TranslateTransform).Y;
-                }
-
-            var sliderRBind1 = new System.Windows.Data.Binding
+            if (!_canManipulateChart)
             {
-                Source = (Resources["MainPageViewModel"] as MainPageViewModel),
-                Path = new PropertyPath("Scale")
-            };
+                _manipulationStartedInfoFrame = true;
+                _lastMousePositionInfoFrame = e.GetPosition(sender as System.Windows.Controls.Label);
+            }
+            else
+            {
+                _manipulationStartedChartGrid = true;
+                _lastMousePositionChartGrid = e.GetPosition(sender as Grid);
+            }            
+        }
 
-            ScaleTransform scaleTransform = new ScaleTransform();
-            BindingOperations.SetBinding(scaleTransform, ScaleTransform.ScaleXProperty, sliderRBind1);
-            BindingOperations.SetBinding(scaleTransform, ScaleTransform.ScaleYProperty, sliderRBind1);
+        private void ChartGrid_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            _manipulationStartedChartGrid = false;
+            _manipulationStartedInfoFrame = false;
+        }
 
-            transformGroup.Children.Add(translateTransform);
-            //transformGroup.Children.Add(scaleTransform);
+        private void ChartGrid_OnMouseLeave(object sender, MouseEventArgs e)
+        {
+            _manipulationStartedChartGrid = false;
+            _manipulationStartedInfoFrame = false;
+        }
 
-            ChartGridContainer.RenderTransform = transformGroup;
-            int x = 0;
+        private void ChartGrid_OnMouseMove(object sender, MouseEventArgs e)
+        {
+            if (_manipulationStartedChartGrid)
+            {
+                var mousePosition = e.GetPosition(sender as Grid);
+
+                TranslateTransform translateTransform =
+                    new TranslateTransform((mousePosition.X - _lastMousePositionChartGrid.X),
+                        (mousePosition.Y - _lastMousePositionChartGrid.Y));
+                _lastMousePositionChartGrid = mousePosition;
+                TransformGroup transformGroup = new TransformGroup();
+                TransformGroup tg = (TransformGroup) ChartGridContainer.RenderTransform;
+                foreach (Transform t in tg.Children)
+                    if (t is TranslateTransform)
+                    {
+                        translateTransform.X += (t as TranslateTransform).X;
+                        translateTransform.Y += (t as TranslateTransform).Y;
+                    }
+                transformGroup.Children.Add(translateTransform);
+
+                ChartGridContainer.RenderTransform = transformGroup;
+            }
+
+            if (_manipulationStartedInfoFrame)
+            {
+                var mousePosition = e.GetPosition(sender as System.Windows.Controls.Label);
+
+                TranslateTransform translateTransform = new TranslateTransform((mousePosition.X - _lastMousePositionInfoFrame.X), (mousePosition.Y - _lastMousePositionInfoFrame.Y));
+                _lastMousePositionInfoFrame = mousePosition;
+                TransformGroup transformGroup = new TransformGroup();
+                TransformGroup tg = (TransformGroup)InfoFrameLabel.RenderTransform;
+                foreach (Transform t in tg.Children)
+                    if (t is TranslateTransform)
+                    {
+                        translateTransform.X += (t as TranslateTransform).X;
+                        translateTransform.Y += (t as TranslateTransform).Y;
+                    }
+                transformGroup.Children.Add(translateTransform);
+
+                InfoFrameLabel.RenderTransform = transformGroup;
+            }
+        }
+
+        private void InfoFrame_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {                      
+            
+        }
+
+        private void InfoFrame_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            _manipulationStartedInfoFrame = false;
+        }
+
+        private void InfoFrame_OnMouseLeave(object sender, MouseEventArgs e)
+        {            
+            _canManipulateChart = true;
+        }
+
+        private void InfoFrame_OnMouseMove(object sender, MouseEventArgs e)
+        {
+            if (!_manipulationStartedInfoFrame)
+                return;
+
+            
+        }
+
+        private void InfoFrame_OnMouseEnter(object sender, MouseEventArgs e)
+        {
+            _canManipulateChart = false;
         }
     }
 }

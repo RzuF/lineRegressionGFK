@@ -13,6 +13,8 @@ namespace lineRegressionGFK.Models
         public double YStart { get; set; }
         public double XEnd { get; set; }
         public double YEnd { get; set; }
+
+        public double YStartForChart => YStart - 5;
         public double Alpha => -Math.Atan2(YEnd - YStart,XEnd - XStart) * 180.0 / Math.PI;
         public double Size => Math.Sqrt(Math.Pow(XEnd - XStart, 2) + Math.Pow(YEnd - XEnd, 2));
         public Color Color { get; set; } = Colors.White;

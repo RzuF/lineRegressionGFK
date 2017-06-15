@@ -11,12 +11,10 @@
         xmlns:models="clr-namespace:lineRegressionGFK.Models"
         xmlns:converter="clr-namespace:lineRegressionGFK.Converters"
         mc:Ignorable="d"
-        Title="MainWindow" Height="651.203" Width="534.19"
+        Title="MainWindow" Height="668.203" Width="964.19"
         x:Name="MainWindowControl">
     <Window.Resources>
         <vm:MainPageViewModel x:Key="MainPageViewModel" x:Name="MainPageViewModel"/>
-        <models:PointTypeEnum x:Key="PointTypeEnumEllipse">Ellipse</models:PointTypeEnum>
-        <models:PointTypeEnum x:Key="PointTypeEnumRectangle">Rectangle</models:PointTypeEnum>
         <converter:StringToInt32Converter x:Key="StringToInt32Converter"></converter:StringToInt32Converter>
         <converter:StringToDoubleConverter x:Key="StringToDoubleConverter"></converter:StringToDoubleConverter>
         <converter:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"></converter:BoolToVisibilityConverter>
@@ -26,6 +24,8 @@
         <converter:ScalePositionMultiConverter x:Key="ScalePositionMultiConverter"></converter:ScalePositionMultiConverter>
         <converter:DoubleInversionConverter x:Key="DoubleInversionConverter"></converter:DoubleInversionConverter>
         <converter:CoordinatesToSizeWithScaleMultiConverter x:Key="CoordinatesToSizeWithScaleMultiConverter"></converter:CoordinatesToSizeWithScaleMultiConverter>
+        <converter:ScalePositionForYPolynomialMultiConverter x:Key="ScalePositionForYPolynomialMultiConverter"></converter:ScalePositionForYPolynomialMultiConverter>
+        <converter:InfoStringByBoolConverter x:Key="InfoStringByBoolConverter"></converter:InfoStringByBoolConverter>
     </Window.Resources>
     <Window.DataContext>
         <StaticResource ResourceKey="MainPageViewModel"></StaticResource>
@@ -71,7 +71,7 @@
                 <RowDefinition Height="3*"></RowDefinition>
             </Grid.RowDefinitions>
 
-            <Grid ClipToBounds="True" Margin="10" MouseLeftButtonDown="UIElement_OnMouseLeftButtonDown" MouseLeftButtonUp="UIElement_OnMouseLeftButtonUp" MouseLeave="UIElement_OnMouseLeave" MouseMove="UIElement_OnMouseMove" Background="{Binding BackgroundBrush}">
+            <Grid x:Name="ChartGrid" ClipToBounds="True" Margin="10" MouseLeftButtonDown="ChartGrid_OnMouseLeftButtonDown" MouseLeftButtonUp="ChartGrid_OnMouseLeftButtonUp" MouseLeave="ChartGrid_OnMouseLeave" MouseMove="ChartGrid_OnMouseMove" Background="{Binding BackgroundBrush}">
                 <Grid Grid.Row="0" x:Name="ChartGridContainer" RenderTransformOrigin="0.5,0.5">
                     <ItemsControl ItemsSource="{Binding Path=HorizontalLinesCollection}">
                         <ItemsControl.ItemsPanel>
@@ -123,10 +123,9 @@
                                 <Grid>
                                     <Rectangle Fill="{Binding LineBrush, Source={StaticResource MainPageViewModel}}" Width="1px" Height="{Binding Size}" Opacity="{Binding Opacity}" HorizontalAlignment="Left">
                                         <Rectangle.RenderTransform>
-                                        <TransformGroup>
-                                            <!--<TranslateTransform X="{Binding OffsetX}"/>-->
-                                            <TranslateTransform Y="{Binding OffsetX}"></TranslateTransform>
-                                        </TransformGroup>
+                                            <TransformGroup>
+                                                <TranslateTransform Y="{Binding OffsetX}"></TranslateTransform>
+                                            </TransformGroup>
                                         </Rectangle.RenderTransform>
                                     </Rectangle>
                                     <TextBlock Text="{Binding StringValue}" Foreground="{Binding LineBrush, Source={StaticResource MainPageViewModel}}" VerticalAlignment="Center">
@@ -229,7 +228,7 @@
                         </ItemsControl.ItemContainerStyle>
                     </ItemsControl>
 
-                    <ItemsControl ItemsSource="{Binding Path=RegressionPolynomial}">
+                    <ItemsControl ItemsSource="{Binding Path=RegressionLinear.GraphicRepresentation}" Visibility="{Binding LinearRegressionType, Converter={StaticResource BoolToVisibilityConverter}}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <Canvas Background="Transparent">
@@ -239,7 +238,7 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Grid>
-                                    <Rectangle Fill="{Binding Brush}" Height="2px">
+                                    <Rectangle Fill="{Binding RegressionLineBrush, Source={StaticResource MainPageViewModel}}" Height="2px">
                                         <Rectangle.Width>
                                             <MultiBinding Converter="{StaticResource CoordinatesToSizeWithScaleMultiConverter}">
                                                 <Binding Path="XStart"/>
@@ -270,7 +269,7 @@
                                 </Setter>
                                 <Setter Property="Canvas.Top">
                                     <Setter.Value>
-                                        <MultiBinding Converter="{StaticResource ScalePositionMultiConverter}">
+                                        <MultiBinding Converter="{StaticResource ScalePositionForYPolynomialMultiConverter}">
                                             <Binding Path="YStart" Converter="{StaticResource DoubleInversionConverter}"/>
                                             <Binding Path="Scale" Source="{StaticResource MainPageViewModel}"/>
                                         </MultiBinding>
@@ -279,67 +278,139 @@
                             </Style>
                         </ItemsControl.ItemContainerStyle>
                     </ItemsControl>
-                    
-                    <!--<Rectangle Fill="{Binding RegressionLine.Brush}" Width="{Binding RegressionLine.Size}" Height="2px" RenderTransformOrigin="0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
-                        <Rectangle.RenderTransform>
-                            <TransformGroup>
-                                <TranslateTransform X="{Binding RegressionLine.OffsetX}"/>
-                                <RotateTransform Angle="{Binding RegressionLine.Alpha}"></RotateTransform>
-                                <TranslateTransform Y="{Binding RegressionLine.YTransform}"/>
-                            </TransformGroup>
-                        </Rectangle.RenderTransform>
-                    </Rectangle>
-                    <Rectangle Fill="{Binding RegressionLine.Brush}" Width="{Binding RegressionLine.Size}" Height="2px" RenderTransformOrigin="0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
-                        <Rectangle.RenderTransform>
-                            <TransformGroup>
-                                <RotateTransform Angle="{Binding RegressionLine.Alpha}"></RotateTransform>
-                                <TranslateTransform Y="{Binding RegressionLine.YTransform}"/>
-                            </TransformGroup>
-                        </Rectangle.RenderTransform>
-                    </Rectangle>-->
+
+                    <ItemsControl ItemsSource="{Binding Path=RegressionPolynomial.GraphicRepresentation}" Visibility="{Binding PolynomialRegressionType, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <Canvas Background="Transparent">
+                                </Canvas>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Rectangle Fill="{Binding RegressionLineBrush, Source={StaticResource MainPageViewModel}}" Height="2px">
+                                        <Rectangle.Width>
+                                            <MultiBinding Converter="{StaticResource CoordinatesToSizeWithScaleMultiConverter}">
+                                                <Binding Path="XStart"/>
+                                                <Binding Path="XEnd"/>
+                                                <Binding Path="YStart"/>
+                                                <Binding Path="YEnd"/>
+                                                <Binding Path="Scale" Source="{StaticResource MainPageViewModel}"/>
+                                            </MultiBinding>
+                                        </Rectangle.Width>
+                                        <Rectangle.RenderTransform>
+                                            <TransformGroup>
+                                                <RotateTransform Angle="{Binding Alpha}"/>
+                                            </TransformGroup>
+                                        </Rectangle.RenderTransform>
+                                    </Rectangle>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        <ItemsControl.ItemContainerStyle>
+                            <Style>
+                                <Setter Property="Canvas.Left">
+                                    <Setter.Value>
+                                        <MultiBinding Converter="{StaticResource ScalePositionMultiConverter}">
+                                            <Binding Path="XStart"/>
+                                            <Binding Path="Scale" Source="{StaticResource MainPageViewModel}"/>
+                                        </MultiBinding>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter Property="Canvas.Top">
+                                    <Setter.Value>
+                                        <MultiBinding Converter="{StaticResource ScalePositionForYPolynomialMultiConverter}">
+                                            <Binding Path="YStart" Converter="{StaticResource DoubleInversionConverter}"/>
+                                            <Binding Path="Scale" Source="{StaticResource MainPageViewModel}"/>
+                                        </MultiBinding>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ItemsControl.ItemContainerStyle>
+                    </ItemsControl>
                 </Grid>
+
+                <TextBlock x:Name="InfoFrameLabel"  MouseEnter="InfoFrame_OnMouseEnter" MouseLeave="InfoFrame_OnMouseLeave"
+                        HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10" Padding="5" Background="{Binding PointBrush}" Foreground="{Binding BackgroundBrush}" TextWrapping="Wrap">
+                    <TextBlock.RenderTransform>
+                        <TransformGroup>
+                        </TransformGroup>
+                    </TextBlock.RenderTransform>
+                    <TextBlock.Text>
+                        <MultiBinding Mode="OneWay" Converter="{StaticResource InfoStringByBoolConverter}">
+                            <Binding Path="RegressionLinear.InfoString"></Binding>
+                            <Binding Path="RegressionPolynomial.InfoString"></Binding>
+                            <Binding Path="LinearRegressionType"></Binding>
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
+
             </Grid>
 
-            <StackPanel Grid.Row="1">
-                <Button Content="{Binding ToCenterText}" Command="{Binding ToCenterCommand}" Margin="6">
-                    <Button.CommandParameter>
-                        <Binding Path="Children[0].Children[0]" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type Grid}}"/>
-                    </Button.CommandParameter>
-                </Button>
-                <DockPanel Margin="6">
-                    <Label Content="{Binding YDeltaLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
-                    <TextBox Text="{Binding LineHighDelta, Mode=TwoWay, Converter={StaticResource StringToDoubleConverter}}" VerticalAlignment="Center"/>
-                </DockPanel>
-                <DockPanel Margin="6">
-                    <Label Content="{Binding XDeltaLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
-                    <TextBox Text="{Binding LineWidthDelta, Mode=TwoWay, Converter={StaticResource StringToDoubleConverter}}" VerticalAlignment="Center"/>
-                </DockPanel>
-                <DockPanel Margin="6">
-                    <Label Content="{Binding PointColorLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
-                    <xctk:ColorPicker SelectedColor="{Binding PointColor}"/>
-                </DockPanel>
-                <DockPanel Margin="6">
-                    <Label Content="{Binding LineColorLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
-                    <xctk:ColorPicker SelectedColor="{Binding LineColor}"/>
-                </DockPanel>
-                <DockPanel Margin="6">
-                    <Label Content="{Binding BackgroundColorLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
-                    <xctk:ColorPicker SelectedColor="{Binding BackgroundColor}"/>
-                </DockPanel>
-                <StackPanel Orientation="Vertical">
-                    <RadioButton Content="{Binding EllipseTypePointLabelText}" IsChecked="{Binding EllipseTypePoint}"></RadioButton>
-                    <RadioButton Content="{Binding RectangleTypePointLabelText}" IsChecked="{Binding RectangleTypePoint}"></RadioButton>
-                    <RadioButton Content="{Binding DiamondTypePointLabelText}" IsChecked="{Binding DiamondTypePoint}"></RadioButton>
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <Button Content="{Binding ToCenterText}" Command="{Binding ToCenterCommand}" Margin="6">
+                        <Button.CommandParameter>
+                            <Binding Path="Children[0].Children[0]" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type Grid}, AncestorLevel=2}"/>
+                        </Button.CommandParameter>
+                    </Button>
+                    <DockPanel Margin="6">
+                        <Label Content="{Binding YDeltaLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
+                        <TextBox Text="{Binding LineHighDelta, Mode=TwoWay, Converter={StaticResource StringToDoubleConverter}}" helpers:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text" VerticalAlignment="Center"/>
+                    </DockPanel>
+                    <DockPanel Margin="6">
+                        <Label Content="{Binding XDeltaLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
+                        <TextBox Text="{Binding LineWidthDelta, Mode=TwoWay, Converter={StaticResource StringToDoubleConverter}}" helpers:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text" VerticalAlignment="Center"/>
+                    </DockPanel>
+                    <StackPanel Orientation="Horizontal" Margin="6">
+                        <RadioButton Content="{Binding EllipseTypePointLabelText}" IsChecked="{Binding EllipseTypePoint}"></RadioButton>
+                        <RadioButton Content="{Binding RectangleTypePointLabelText}" IsChecked="{Binding RectangleTypePoint}"></RadioButton>
+                        <RadioButton Content="{Binding DiamondTypePointLabelText}" IsChecked="{Binding DiamondTypePoint}"></RadioButton>
+                    </StackPanel>
+                    <DockPanel Margin="6">
+                        <Label Content="{Binding PointRadiusLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
+                        <TextBox Text="{Binding PointRadius, Mode=TwoWay, Converter={StaticResource StringToInt32Converter}}" helpers:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text" VerticalAlignment="Center"/>
+                    </DockPanel>
+                    <DockPanel Margin="6">
+                        <Label Content="{Binding ScaleLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
+                        <TextBox Text="{Binding Scale, Mode=TwoWay, Converter={StaticResource StringToDoubleConverter}}" helpers:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text" VerticalAlignment="Center"/>
+                    </DockPanel>
                 </StackPanel>
-                <DockPanel Margin="6">
-                    <Label Content="{Binding ScaleLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
-                    <TextBox Text="{Binding Scale, Mode=TwoWay, Converter={StaticResource StringToDoubleConverter}}" helpers:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text" VerticalAlignment="Center"/>
-                </DockPanel>
-                <DockPanel Margin="6">
-                    <Label Content="{Binding PointRadiusLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
-                    <TextBox Text="{Binding PointRadius, Mode=TwoWay, Converter={StaticResource StringToInt32Converter}}" VerticalAlignment="Center"/>
-                </DockPanel>
-            </StackPanel>
+                
+                <StackPanel Grid.Column="1">
+                    <DockPanel Margin="6">
+                        <Label Content="{Binding PointColorLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
+                        <xctk:ColorPicker SelectedColor="{Binding PointColor}"/>
+                    </DockPanel>
+                    <DockPanel Margin="6">
+                        <Label Content="{Binding LineColorLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
+                        <xctk:ColorPicker SelectedColor="{Binding LineColor}"/>
+                    </DockPanel>
+                    <DockPanel Margin="6">
+                        <Label Content="{Binding RegressionLineColorLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
+                        <xctk:ColorPicker SelectedColor="{Binding RegressionLineColor}"/>
+                    </DockPanel>
+                    <DockPanel Margin="6">
+                        <Label Content="{Binding BackgroundColorLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
+                        <xctk:ColorPicker SelectedColor="{Binding BackgroundColor}"/>
+                    </DockPanel>
+                    <DockPanel Margin="6">
+                        <RadioButton Content="{Binding LinearRegressionTypeLabelText}" IsChecked="{Binding LinearRegressionType}" VerticalAlignment="Center"></RadioButton>
+                        <RadioButton Content="{Binding PolynomialRegressionTypeLabelText}" IsChecked="{Binding PolynomialRegressionType}" VerticalAlignment="Center"></RadioButton>
+                        <Label Content="{Binding PolynomialCoefficientLabelText}" Margin="6,0"></Label>
+                        <TextBox Text="{Binding PolynomialCoefficient, Mode=TwoWay, Converter={StaticResource StringToInt32Converter}}" helpers:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text" VerticalAlignment="Center"/>
+                    </DockPanel>
+                    <DockPanel Margin="6">
+                        <Label Content="{Binding StepLabelText}"></Label>
+                        <TextBox Text="{Binding Step, Mode=TwoWay, Converter={StaticResource StringToDoubleConverter}}" helpers:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text" VerticalAlignment="Center"/>
+                    </DockPanel>
+                </StackPanel>
+            </Grid>
         </Grid>
     </Grid>
 </Window>

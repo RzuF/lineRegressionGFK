@@ -95,8 +95,10 @@
     <Compile Include="Converters\BoolToVisibilityConverter.cs" />
     <Compile Include="Converters\CoordinatesToSizeWithScaleMultiConverter.cs" />
     <Compile Include="Converters\DoubleInversionConverter.cs" />
+    <Compile Include="Converters\InfoStringByBoolConverter.cs" />
     <Compile Include="Converters\PointPositionScaleConverter.cs" />
     <Compile Include="Converters\PositionToStringMultiConverter.cs" />
+    <Compile Include="Converters\ScalePositionForYPolynomialMultiConverter.cs" />
     <Compile Include="Converters\ScalePositionMultiConverter.cs" />
     <Compile Include="Converters\SizePartsToSizeConverter.cs" />
     <Compile Include="Converters\StringToDoubleConverter.cs" />
@@ -107,6 +109,8 @@
     <Compile Include="Models\ChartPoint.cs" />
     <Compile Include="Models\ChartPolynomialPart.cs" />
     <Compile Include="Models\ChartRegressionLine.cs" />
+    <Compile Include="Models\LinearRegression.cs" />
+    <Compile Include="Models\PolynomialRegression.cs" />
     <Compile Include="Models\Regression.cs" />
     <Compile Include="Models\PointTypeEnum.cs" />
     <Compile Include="Models\RelayCommand.cs" />

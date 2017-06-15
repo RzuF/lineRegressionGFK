@@ -9,22 +9,24 @@ namespace lineRegressionGFK.Helpers
 {
     public static class PolynomialLineCreatorHelper
     {
-        public static List<ChartPolynomialPart> Create(Func<double, double> polynomial, double start, double end, double step)
+        public static List<ChartPolynomialPart> Create(double[] coefficients, double start, double end, double step)
         {
-            double range = end - start;
             List<ChartPolynomialPart> chartPolynomialParts = new List<ChartPolynomialPart>
             {
                 new ChartPolynomialPart()
                 {
                     XStart = start,
-                    YStart = polynomial(start),
-
+                    YStart = calculateValue(start, coefficients),
                 }
             };
 
             for (double i = start+step; i <= end; i += step)
             {
-                double currentValueOfPolynomialStep = polynomial(i);
+                if (Math.Abs(i) < 0.1 && Math.Abs(i) >= 0)
+                {
+                    var x = chartPolynomialParts.Last();
+                }
+                double currentValueOfPolynomialStep = calculateValue(i, coefficients);
                 chartPolynomialParts.Last().XEnd = i;
                 chartPolynomialParts.Last().YEnd = currentValueOfPolynomialStep;
                 chartPolynomialParts.Add(new ChartPolynomialPart()
@@ -38,6 +40,19 @@ namespace lineRegressionGFK.Helpers
                 chartPolynomialParts.RemoveAt(chartPolynomialParts.Count-1);
 
             return chartPolynomialParts;
+        }
+
+        private static double calculateValue(double x, double[] coefficients)
+        {
+            double result = 0;
+            for (int i = 0; i < coefficients.Length; i++)
+            {
+                result += coefficients[i] * Math.Pow(x, i);
+            }
+
+            result = Math.Round(result, 5);
+
+            return result;
         }
     }
 }

@@ -76,12 +76,36 @@ namespace lineRegressionGFK.VM
             });
             if (PointsCollection.Count > 1)
             {
-                var regression = Regression.Linear(PointsCollection.Select(x => x.X).ToArray(), PointsCollection.Select(x => x.Y).ToArray());
+                var regressionCoefficients = Regression.Polynomial(PointsCollection.Select(x => x.X).ToArray(), PointsCollection.Select(x => x.Y).ToArray(), 1);
+                var regressionStd = Regression.LinearStdDev(PointsCollection.Select(x => x.X).ToArray(), PointsCollection.Select(x => x.Y).ToArray());                
 
-                RegressionPolynomial = PolynomialLineCreatorHelper.Create(x => regression.Item1*x + regression.Item2, MinXValue.Value, MaxXValue.Value, 1);                
+                RegressionLinear = new LinearRegression()
+                {
+                    GraphicRepresentation = PolynomialLineCreatorHelper.Create(regressionCoefficients, MinXValue.Value, MaxXValue.Value, Step),
+                    AParameter = regressionCoefficients[1],
+                    BParameter = regressionCoefficients[0],
+                    StdA = regressionStd.Item1,
+                    StdB = regressionStd.Item2
+                };
+
+                UpdatePolynomial();
             }
 
             UpdateAllChartElements();
+        }
+
+        void UpdatePolynomial()
+        {            
+            if(PointsCollection.Count < PolynomialCoefficient + 1)
+                return;
+            var polynomialRegressionCoefficients = Regression.Polynomial(PointsCollection.Select(x => x.X).ToArray(), PointsCollection.Select(x => x.Y).ToArray(), PolynomialCoefficient);
+            //var polynomialRegressionCoefficients = Fit.Polynomial(PointsCollection.Select(x => x.X).ToArray(), PointsCollection.Select(x => x.Y).ToArray(), PolynomialCoefficient);            
+            //polynomialRegressionCoefficients = new double[] {0, 1};
+            RegressionPolynomial = new PolynomialRegression()
+            {
+                Coefficients = polynomialRegressionCoefficients,
+                GraphicRepresentation = PolynomialLineCreatorHelper.Create(polynomialRegressionCoefficients, MinXValue.Value, MaxXValue.Value, Step)
+            };
         }
 
         void UpdateChartPoints()
@@ -152,7 +176,6 @@ namespace lineRegressionGFK.VM
             UpdateChartPoints();
             UpdateVerticalLines();
             UpdateHorizontalLines();
-            //UpdateRegressionLine();
         }
 
         #endregion
@@ -201,6 +224,21 @@ namespace lineRegressionGFK.VM
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundBrush)));
             }
         }
+
+        public string RegressionLineColorLabelText { get; } = "Pick line color";
+        private Color _regressionLineColor = Colors.White;
+        public Color RegressionLineColor
+        {
+            get { return _regressionLineColor; }
+            set
+            {
+                _regressionLineColor = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RegressionLineColor)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RegressionLineBrush)));
+            }
+        }
+
+        public Brush RegressionLineBrush => new SolidColorBrush(_regressionLineColor);
 
         public Brush BackgroundBrush => new SolidColorBrush(_backgroundColor);
 
@@ -369,15 +407,90 @@ namespace lineRegressionGFK.VM
         
         }
 
-        private List<ChartPolynomialPart> _regressionPolynomial;
+        private LinearRegression _regressionLinear;
 
-        public List<ChartPolynomialPart> RegressionPolynomial
+        public LinearRegression RegressionLinear
+        {
+            get { return _regressionLinear; }
+            set
+            {
+                _regressionLinear = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RegressionLinear)));
+            }
+        }
+
+        private PolynomialRegression _regressionPolynomial;
+
+        public PolynomialRegression RegressionPolynomial
         {
             get { return _regressionPolynomial; }
             set
             {
                 _regressionPolynomial = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RegressionPolynomial)));
+            }
+        }
+
+        public string LinearRegressionTypeLabelText { get; } = "Linear";
+        private bool _linearRegressionType = true;
+        public bool LinearRegressionType
+        {
+            get
+            {
+                return _linearRegressionType;
+            }
+            set
+            {
+                _linearRegressionType = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LinearRegressionType)));
+            }
+        }
+
+        public string PolynomialRegressionTypeLabelText { get; } = "Polynomial";
+        private bool _polynomialRegressionType = false;
+        public bool PolynomialRegressionType
+        {
+            get
+            {
+                return _polynomialRegressionType;
+            }
+            set
+            {
+                _polynomialRegressionType = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PolynomialRegressionType)));
+            }
+        }
+
+        public string PolynomialCoefficientLabelText { get; } = "Coefficient:";
+        private int _polynomialCoefficient = 3;
+        public int PolynomialCoefficient
+        {
+            get { return _polynomialCoefficient; }
+            set
+            {
+                if (value != _polynomialCoefficient)
+                {
+                    _polynomialCoefficient = value;
+                    UpdatePolynomial();
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PolynomialCoefficient)));
+                }
+            }
+        }
+
+        public string StepLabelText { get; } = "Step";
+        private double _step = 1;
+
+        public double Step
+        {
+            get { return _step; }
+            set
+            {
+                if (_step != value)
+                {
+                    _step = value;
+                    UpdatePolynomial();
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PolynomialCoefficient)));
+                }
             }
         }
 
@@ -461,8 +574,8 @@ namespace lineRegressionGFK.VM
 
                             if (saveFileDialog.ShowDialog() == DialogResult.OK)
                             {                    
-                                var renderTargetBitmap = new RenderTargetBitmap((int)MainWindow.ChartGridContainer.RenderSize.Width, (int)MainWindow.ChartGridContainer.RenderSize.Height, 96d, 85d, PixelFormats.Pbgra32);
-                                renderTargetBitmap.Render(MainWindow.ChartGridContainer);
+                                var renderTargetBitmap = new RenderTargetBitmap((int)MainWindow.ChartGrid.RenderSize.Width, (int)MainWindow.ChartGrid.RenderSize.Height, 96d, 85d, PixelFormats.Pbgra32);
+                                renderTargetBitmap.Render(MainWindow.ChartGrid);
                                 using (var saveStream = saveFileDialog.OpenFile())
                                 {
                                     var encoder = new PngBitmapEncoder();
@@ -478,6 +591,8 @@ namespace lineRegressionGFK.VM
                     public ICommand ClearCommand => _clearCommand ?? new RelayCommand((obj) =>
                     {
                         PointsCollection = new List<ChartPoint>();
+                        RegressionLinear = new LinearRegression();
+                        RegressionPolynomial = new PolynomialRegression();
                     });
 
                     private ICommand _sizeChangedCommand;
@@ -494,8 +609,16 @@ namespace lineRegressionGFK.VM
             
                     });
 
+                    public string PrintText  => "Print Chart";
+                    private ICommand _printCommand;
 
-                    public string ToCenterText { get; } = "Center chart";
+                    public ICommand PrintCommand => _radioChangedCommand ?? new RelayCommand((obj) =>
+                    {
+
+                    });
+
+
+        public string ToCenterText { get; } = "Center chart";
                     private ICommand _toCenterCommand;
                     public ICommand ToCenterCommand => _toCenterCommand ?? new RelayCommand((obj) =>
                     {
