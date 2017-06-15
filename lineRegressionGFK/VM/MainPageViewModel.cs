@@ -17,6 +17,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using lineRegressionGFK.Annotations;
+using lineRegressionGFK.Helpers;
 using lineRegressionGFK.Models;
 using MathNet.Numerics;
 
@@ -43,8 +44,8 @@ namespace lineRegressionGFK.VM
         public MainWindow MainWindow { get; set; }
         public double? MaxXValue { get; private set; } = 100;
         public double? MaxYValue { get; private set; } = 100;
-        public double? MinXValue { get; private set; } = 0;
-        public double? MinYValue { get; private set; } = 0;
+        public double? MinXValue { get; private set; } = -100;
+        public double? MinYValue { get; private set; } = -100;
 
         #endregion
 
@@ -76,13 +77,10 @@ namespace lineRegressionGFK.VM
             if (PointsCollection.Count > 1)
             {
                 var regression = Regression.Linear(PointsCollection.Select(x => x.X).ToArray(), PointsCollection.Select(x => x.Y).ToArray());
-                RegressionLine = new ChartRegressionLine()
-                {
-                    AParameter = regression.Item1,
-                    BParameter = regression.Item2
-                };
+
+                RegressionPolynomial = PolynomialLineCreatorHelper.Create(x => regression.Item1*x + regression.Item2, MinXValue.Value, MaxXValue.Value, 1);                
             }
-            
+
             UpdateAllChartElements();
         }
 
@@ -154,7 +152,7 @@ namespace lineRegressionGFK.VM
             UpdateChartPoints();
             UpdateVerticalLines();
             UpdateHorizontalLines();
-            UpdateRegressionLine();
+            //UpdateRegressionLine();
         }
 
         #endregion
@@ -370,6 +368,19 @@ namespace lineRegressionGFK.VM
             }            
         
         }
+
+        private List<ChartPolynomialPart> _regressionPolynomial;
+
+        public List<ChartPolynomialPart> RegressionPolynomial
+        {
+            get { return _regressionPolynomial; }
+            set
+            {
+                _regressionPolynomial = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RegressionPolynomial)));
+            }
+        }
+
 
         #endregion
 

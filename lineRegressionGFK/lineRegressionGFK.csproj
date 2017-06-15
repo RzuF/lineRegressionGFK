@@ -93,6 +93,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Converters\BoolToVisibilityConverter.cs" />
+    <Compile Include="Converters\CoordinatesToSizeWithScaleMultiConverter.cs" />
     <Compile Include="Converters\DoubleInversionConverter.cs" />
     <Compile Include="Converters\PointPositionScaleConverter.cs" />
     <Compile Include="Converters\PositionToStringMultiConverter.cs" />
@@ -101,8 +102,10 @@
     <Compile Include="Converters\StringToDoubleConverter.cs" />
     <Compile Include="Converters\StringToInt32Converter.cs" />
     <Compile Include="Helpers\InputBindingsManager.cs" />
+    <Compile Include="Helpers\PolynomialLineCreatorHelper.cs" />
     <Compile Include="Models\ChartLine.cs" />
     <Compile Include="Models\ChartPoint.cs" />
+    <Compile Include="Models\ChartPolynomialPart.cs" />
     <Compile Include="Models\ChartRegressionLine.cs" />
     <Compile Include="Models\Regression.cs" />
     <Compile Include="Models\PointTypeEnum.cs" />

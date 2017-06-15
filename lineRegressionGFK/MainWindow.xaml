@@ -25,6 +25,7 @@
         <converter:PositionToStringMultiConverter x:Key="PositionToStringMultiConverter"></converter:PositionToStringMultiConverter>
         <converter:ScalePositionMultiConverter x:Key="ScalePositionMultiConverter"></converter:ScalePositionMultiConverter>
         <converter:DoubleInversionConverter x:Key="DoubleInversionConverter"></converter:DoubleInversionConverter>
+        <converter:CoordinatesToSizeWithScaleMultiConverter x:Key="CoordinatesToSizeWithScaleMultiConverter"></converter:CoordinatesToSizeWithScaleMultiConverter>
     </Window.Resources>
     <Window.DataContext>
         <StaticResource ResourceKey="MainPageViewModel"></StaticResource>
@@ -227,7 +228,59 @@
                             </Style>
                         </ItemsControl.ItemContainerStyle>
                     </ItemsControl>
-                    <Rectangle Fill="{Binding RegressionLine.Brush}" Width="{Binding RegressionLine.Size}" Height="2px" RenderTransformOrigin="0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
+
+                    <ItemsControl ItemsSource="{Binding Path=RegressionPolynomial}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <Canvas Background="Transparent">
+                                </Canvas>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Rectangle Fill="{Binding Brush}" Height="2px">
+                                        <Rectangle.Width>
+                                            <MultiBinding Converter="{StaticResource CoordinatesToSizeWithScaleMultiConverter}">
+                                                <Binding Path="XStart"/>
+                                                <Binding Path="XEnd"/>
+                                                <Binding Path="YStart"/>
+                                                <Binding Path="YEnd"/>
+                                                <Binding Path="Scale" Source="{StaticResource MainPageViewModel}"/>
+                                            </MultiBinding>
+                                        </Rectangle.Width>
+                                        <Rectangle.RenderTransform>
+                                            <TransformGroup>
+                                                <RotateTransform Angle="{Binding Alpha}"/>
+                                            </TransformGroup>
+                                        </Rectangle.RenderTransform>
+                                    </Rectangle>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        <ItemsControl.ItemContainerStyle>
+                            <Style>
+                                <Setter Property="Canvas.Left">
+                                    <Setter.Value>
+                                        <MultiBinding Converter="{StaticResource ScalePositionMultiConverter}">
+                                            <Binding Path="XStart"/>
+                                            <Binding Path="Scale" Source="{StaticResource MainPageViewModel}"/>
+                                        </MultiBinding>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter Property="Canvas.Top">
+                                    <Setter.Value>
+                                        <MultiBinding Converter="{StaticResource ScalePositionMultiConverter}">
+                                            <Binding Path="YStart" Converter="{StaticResource DoubleInversionConverter}"/>
+                                            <Binding Path="Scale" Source="{StaticResource MainPageViewModel}"/>
+                                        </MultiBinding>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ItemsControl.ItemContainerStyle>
+                    </ItemsControl>
+                    
+                    <!--<Rectangle Fill="{Binding RegressionLine.Brush}" Width="{Binding RegressionLine.Size}" Height="2px" RenderTransformOrigin="0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
                         <Rectangle.RenderTransform>
                             <TransformGroup>
                                 <TranslateTransform X="{Binding RegressionLine.OffsetX}"/>
@@ -243,7 +296,7 @@
                                 <TranslateTransform Y="{Binding RegressionLine.YTransform}"/>
                             </TransformGroup>
                         </Rectangle.RenderTransform>
-                    </Rectangle>
+                    </Rectangle>-->
                 </Grid>
             </Grid>
 

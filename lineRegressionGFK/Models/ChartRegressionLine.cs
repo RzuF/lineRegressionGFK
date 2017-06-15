@@ -14,7 +14,7 @@ namespace lineRegressionGFK.Models
         public double BParameter { get; set; }
         public double AlteredAParameter { get; set; }
 
-        public double Alpha => -Math.Abs(Math.Atan(AParameter) * 180.0 / Math.PI);
+        public double Alpha => -Math.Atan(AParameter) * 180.0 / Math.PI;
 
         public double XTransform { get; set; }
         public double YTransform { get; set; }
