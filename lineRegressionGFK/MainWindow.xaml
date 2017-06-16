@@ -45,6 +45,7 @@
                 <RowDefinition Height="Auto"></RowDefinition>
                 <RowDefinition Height="Auto"></RowDefinition>
                 <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
                 <RowDefinition Height="Auto"></RowDefinition>
                 <RowDefinition Height="Auto"></RowDefinition>
@@ -63,7 +64,8 @@
             <Button Grid.Row="3" Content="{Binding FromFileText}" Command="{Binding FromFileCommand}" Margin="6"></Button>
             <Button Grid.Row="4" Content="{Binding SaveAsText}" Command="{Binding SaveAsCommand}" Margin="6"></Button>
             <Button Grid.Row="5" Content="{Binding PrintText}" Command="{Binding PrintCommand}" Margin="6"></Button>
-            <TabControl  Grid.Row="6" x:Name="ListOfPointsTab"  ItemsSource="{Binding DataSetsOfPoints}" SelectedIndex="{Binding CurrentIndexOfDataSet}" VerticalAlignment="Top">
+            <Button Grid.Row="6" Content="{Binding CopyToClipboardText}" Command="{Binding CopyToClipboardCommand}" Margin="6"></Button>
+            <TabControl  Grid.Row="7" x:Name="ListOfPointsTab"  ItemsSource="{Binding DataSetsOfPoints}" SelectedIndex="{Binding CurrentIndexOfDataSet}" VerticalAlignment="Top">
                 <TabControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <Canvas Background="Transparent">
@@ -96,10 +98,10 @@
                     </DataTemplate>
                 </TabControl.ContentTemplate>
             </TabControl>
-            <Button Grid.Row="7" Content="{Binding ClearSingleText}" Command="{Binding ClearSingleCommand}" Margin="6"></Button>
-            <Button Grid.Row="8" Content="{Binding ClearAllText}" Command="{Binding ClearAllCommand}" Margin="6"></Button>
-            <Button Grid.Row="9" Content="{Binding AddDataSetText}" Command="{Binding AddDataSetCommand}" Margin="6"></Button>
-            <Button Grid.Row="10" Content="{Binding DeleteDataSetText}" Command="{Binding DeleteDataSetCommand}" Margin="6"></Button>
+            <Button Grid.Row="8" Content="{Binding ClearSingleText}" Command="{Binding ClearSingleCommand}" Margin="6"></Button>
+            <Button Grid.Row="9" Content="{Binding ClearAllText}" Command="{Binding ClearAllCommand}" Margin="6"></Button>
+            <Button Grid.Row="10" Content="{Binding AddDataSetText}" Command="{Binding AddDataSetCommand}" Margin="6"></Button>
+            <Button Grid.Row="11" Content="{Binding DeleteDataSetText}" Command="{Binding DeleteDataSetCommand}" Margin="6"></Button>
         </Grid>
 
         <Grid Grid.Column="1" x:Name="ChartCanvas">

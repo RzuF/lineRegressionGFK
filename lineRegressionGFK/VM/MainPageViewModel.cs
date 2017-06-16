@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -14,7 +15,12 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using lineRegressionGFK.Annotations;
 using lineRegressionGFK.Models;
+using Brush = System.Windows.Media.Brush;
+using Clipboard = System.Windows.Clipboard;
+using Color = System.Windows.Media.Color;
+using Image = System.Drawing.Image;
 using OpenFileDialog = System.Windows.Forms.OpenFileDialog;
+using Size = System.Windows.Size;
 
 namespace lineRegressionGFK.VM
 {
@@ -470,6 +476,22 @@ namespace lineRegressionGFK.VM
         /// <summary>
         /// Property holds text to display in Label
         /// </summary>
+        public string CopyToClipboardText => "Copy chart to clipboard";
+        private ICommand _copyToClipboardCommand;
+        /// <summary>
+        /// Command for saving chart as picture. Use lazy initialization.
+        /// </summary>
+        public ICommand CopyToClipboardCommand => _copyToClipboardCommand ?? new RelayCommand((obj) =>
+        {          
+            var renderTargetBitmap = new RenderTargetBitmap((int) MainWindow.ChartGrid.ActualWidth,
+                (int) MainWindow.ChartGrid.ActualHeight, 96d, 85d, PixelFormats.Pbgra32);
+            renderTargetBitmap.Render(MainWindow.ChartGrid);
+            Clipboard.SetImage(renderTargetBitmap);
+        });
+
+        /// <summary>
+        /// Property holds text to display in Label
+        /// </summary>
         public string ClearAllText => "Clear all DataSets";
         private ICommand _clearAllCommand;
         /// <summary>
@@ -526,6 +548,9 @@ namespace lineRegressionGFK.VM
                 if (dataSetsOfPoint.MinXValue < MinXValue)
                     MinXValue = dataSetsOfPoint.MinXValue;
             }
+
+            if (CurrentIndexOfDataSet == -1)
+                CurrentIndexOfDataSet = 0;
         });
 
         /// <summary>
