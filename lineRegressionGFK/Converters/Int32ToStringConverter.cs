@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Data;
 
 namespace lineRegressionGFK.Converters
 {
-    class StringToInt32Converter : IValueConverter
+    /// <summary>
+    /// IValueConverter interface implemenation. Converts double to string and backwards.
+    /// </summary>
+    class Int32ToStringConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

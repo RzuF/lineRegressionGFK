@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Data;
 
 namespace lineRegressionGFK.Converters
 {
+    /// <summary>
+    /// IMultiValueConverter interface implementation. Converts passed position coordinate and scale to proper position on chart
+    /// </summary>
     public class ScalePositionMultiConverter : IMultiValueConverter
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)

@@ -15,8 +15,8 @@
         x:Name="MainWindowControl" MinHeight="630" MinWidth="630">
     <Window.Resources>
         <vm:MainPageViewModel x:Key="MainPageViewModel"/>
-        <converter:StringToInt32Converter x:Key="StringToInt32Converter"></converter:StringToInt32Converter>
-        <converter:StringToDoubleConverter x:Key="StringToDoubleConverter"></converter:StringToDoubleConverter>
+        <converter:Int32ToStringConverter x:Key="StringToInt32Converter"></converter:Int32ToStringConverter>
+        <converter:DoubleToStringConverter x:Key="StringToDoubleConverter"></converter:DoubleToStringConverter>
         <converter:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"></converter:BoolToVisibilityConverter>
         <converter:SizePartsToSizeConverter x:Key="SizePartsToSizeConverter"></converter:SizePartsToSizeConverter>
         <converter:PositionToStringMultiConverter x:Key="PositionToStringMultiConverter"></converter:PositionToStringMultiConverter>
@@ -479,3 +479,6 @@
         </Grid>
     </Grid>
 </Window>
+
+
+

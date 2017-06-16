@@ -102,8 +102,8 @@
     <Compile Include="Converters\ScalePositionForYPolynomialMultiConverter.cs" />
     <Compile Include="Converters\ScalePositionMultiConverter.cs" />
     <Compile Include="Converters\SizePartsToSizeConverter.cs" />
-    <Compile Include="Converters\StringToDoubleConverter.cs" />
-    <Compile Include="Converters\StringToInt32Converter.cs" />
+    <Compile Include="Converters\DoubleToStringConverter.cs" />
+    <Compile Include="Converters\Int32ToStringConverter.cs" />
     <Compile Include="Helpers\InputBindingsManager.cs" />
     <Compile Include="Helpers\PolynomialLineCreatorHelper.cs" />
     <Compile Include="Models\ChartLine.cs" />

@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media;
-
-namespace lineRegressionGFK.Models
+﻿namespace lineRegressionGFK.Models
 {
     /// <summary>
     /// Model of single chart line
