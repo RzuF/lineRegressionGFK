@@ -51,79 +51,9 @@ namespace lineRegressionGFK.VM
 
         #endregion
 
-        #region Private Helper Methods
+        #region Private Helper Methods     
 
-        #if DEBUG
-        public void AddPointToPointsCollection(double xValue, double yValue)
-#else
-        private void AddPointToPointsCollection(double xValue, double yValue)
-#endif
-        {
-            if (MaxXValue == null || xValue > MaxXValue)
-                MaxXValue = xValue;
-
-            if (MinXValue == null || xValue < MinXValue)
-                MinXValue = xValue;
-
-            if (MaxYValue == null || yValue > MaxYValue)
-                MaxYValue = yValue;
-
-            if (MinYValue == null || yValue < MinYValue)
-                MinYValue = yValue;
-
-            PointsCollection.Add(new ChartPoint()
-            {
-                X = xValue,
-                Y = yValue
-            });
-            if (PointsCollection.Count > 1)
-            {
-                var regressionCoefficients = Regression.Polynomial(PointsCollection.Select(x => x.X).ToArray(), PointsCollection.Select(x => x.Y).ToArray(), 1);
-                var regressionStd = Regression.LinearStdDev(PointsCollection.Select(x => x.X).ToArray(), PointsCollection.Select(x => x.Y).ToArray());                
-
-                RegressionLinear = new LinearRegression()
-                {
-                    GraphicRepresentation = PolynomialLineCreatorHelper.Create(regressionCoefficients, MinXValue.Value, MaxXValue.Value, Step),
-                    AParameter = regressionCoefficients[1],
-                    BParameter = regressionCoefficients[0],
-                    StdA = regressionStd.Item1,
-                    StdB = regressionStd.Item2
-                };
-
-                UpdatePolynomial();
-            }
-
-            UpdateAllChartElements();
-        }
-
-        void UpdatePolynomial()
-        {            
-            if(PointsCollection.Count < PolynomialCoefficient + 1)
-                return;
-            var polynomialRegressionCoefficients = Regression.Polynomial(PointsCollection.Select(x => x.X).ToArray(), PointsCollection.Select(x => x.Y).ToArray(), PolynomialCoefficient);
-            //var polynomialRegressionCoefficients = Fit.Polynomial(PointsCollection.Select(x => x.X).ToArray(), PointsCollection.Select(x => x.Y).ToArray(), PolynomialCoefficient);            
-            //polynomialRegressionCoefficients = new double[] {0, 1};
-            RegressionPolynomial = new PolynomialRegression()
-            {
-                Coefficients = polynomialRegressionCoefficients,
-                GraphicRepresentation = PolynomialLineCreatorHelper.Create(polynomialRegressionCoefficients, MinXValue.Value, MaxXValue.Value, Step)
-            };
-        }
-
-        void UpdateChartPoints()
-        {
-            List<ChartPoint> _newList = new List<ChartPoint>();
-
-            foreach (var chartPoint in PointsCollection)
-            {                
-                chartPoint.XForChart = chartPoint.X - (double)PointRadius / Scale / 2.0;
-                chartPoint.YForChart = -chartPoint.Y + 15 / Scale - (double)PointRadius / Scale / 2.0;
-                _newList.Add(chartPoint);
-            }
-
-            if(PointsCollection.Count <= _newList.Count)
-                PointsCollection = _newList;
-        }
+        
 
         void UpdateHorizontalLines()
         {
@@ -160,44 +90,46 @@ namespace lineRegressionGFK.VM
                     _newList.Add(new ChartLine() { PositionFromBeggining = -position, Size = _renderSize.Height * 2 > max * 2 * Scale ? _renderSize.Height * 2 : max * 2 * Scale, Opacity = LineVerticalOpacity, StringValue = $"{-i * LineWidthDelta}" });
             }
             VerticalLinesCollection = _newList;
-        }
-
-        void UpdateRegressionLine()
-        {
-            RegressionLine = new ChartRegressionLine()
-            {
-                AParameter = RegressionLine.AParameter,
-                BParameter = RegressionLine.BParameter,
-                Size = _renderSize.Width*2,
-                YTransform = RegressionLine.BParameter * Scale +15
-            };
-        }
+        }        
 
         void UpdateAllChartElements()
         {
-            UpdateChartPoints();
+            //UpdateChartPoints();
+            // TODO
             UpdateVerticalLines();
             UpdateHorizontalLines();
         }
 
         #endregion
 
-        #region Chart Properties
+        #region Chart Properties    
 
-        public string PointColorLabelText { get; } = "Pick point color";
-        private Color _pointColor = Colors.White;
-        public Color PointColor
+        public ObservableCollection<DataSet> DataSetsOfPoints { get; set; } = new ObservableCollection<DataSet>()
         {
-            get { return _pointColor; }
-            set
+            new DataSet()
             {
-                _pointColor = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PointColor)));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PointBrush)));
-            }
-        }
 
-        public Brush PointBrush => new SolidColorBrush(_pointColor);
+            }
+        };
+
+        public void AddPointToPointsCollection(double xValue, double yValue)
+        {
+            if (xValue > MaxXValue)
+                MaxXValue = xValue;
+
+            if (xValue < MinXValue)
+                MinXValue = xValue;
+
+            if (yValue > MaxYValue)
+                MaxYValue = yValue;
+
+            if (yValue < MinYValue)
+                MinYValue = yValue;
+
+            DataSetsOfPoints[CurrentIndexOfDataSet].AddPointToPointsCollection(xValue, yValue);
+
+            UpdateAllChartElements();
+        }
 
         public string LineColorLabelText { get; } = "Pick line color";
         private Color _lineColor = Colors.White;
@@ -226,86 +158,7 @@ namespace lineRegressionGFK.VM
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(BackgroundBrush)));
             }
         }
-
-        public string RegressionLineColorLabelText { get; } = "Pick line color";
-        private Color _regressionLineColor = Colors.White;
-        public Color RegressionLineColor
-        {
-            get { return _regressionLineColor; }
-            set
-            {
-                _regressionLineColor = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RegressionLineColor)));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RegressionLineBrush)));
-            }
-        }
-
-        public Brush RegressionLineBrush => new SolidColorBrush(_regressionLineColor);
-
-        public Brush BackgroundBrush => new SolidColorBrush(_backgroundColor);
-
-        public string PointRadiusLabelText { get; } = "Point size";
-        private int _pointRadius = 10;
-        public int PointRadius
-        {
-            get { return _pointRadius; }
-            set
-            {
-                _pointRadius = value;
-                UpdateChartPoints();
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PointRadius)));
-            }
-        }
-
-        public string EllipseTypePointLabelText { get; } = "Ellipse";
-        private bool _ellipseTypePoint = true;
-
-        public bool EllipseTypePoint
-        {
-            get { return _ellipseTypePoint; }
-            set
-            {
-                _ellipseTypePoint = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(EllipseTypePoint)));
-            }
-        }
-
-        public string RectangleTypePointLabelText { get; } = "Rectangle";
-        private bool _rectangleTypePoint = false;
-
-        public bool RectangleTypePoint
-        {
-            get { return _rectangleTypePoint; }
-            set
-            {
-                _rectangleTypePoint = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RectangleTypePoint)));
-            }
-        }
-
-        public string DiamondTypePointLabelText { get; } = "Diamond";
-        private bool _diamondTypePoint = false;
-
-        public bool DiamondTypePoint
-        {
-            get { return _diamondTypePoint; }
-            set
-            {
-                _diamondTypePoint = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DiamondTypePoint)));
-            }
-        }
-
-        private List<ChartPoint> _pointsCollection = new List<ChartPoint>();
-        public List<ChartPoint> PointsCollection
-        {
-            get { return _pointsCollection; }
-            set
-            {
-                _pointsCollection = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PointsCollection)));
-            }
-        }
+        public Brush BackgroundBrush => new SolidColorBrush(_backgroundColor);                
 
         private List<ChartLine> _horizontalLinesCollection = new List<ChartLine>();
         public List<ChartLine> HorizontalLinesCollection
@@ -389,110 +242,21 @@ namespace lineRegressionGFK.VM
             get { return _scale; }
             set
             {
-                _scale = value;
-                //UpdateChartPoints();
+                _scale = value;                
                 UpdateAllChartElements();
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Scale)));
             }
-        }        
-
-        private ChartRegressionLine _regressionLine = new ChartRegressionLine();
-
-        public ChartRegressionLine RegressionLine
-        {
-            get { return _regressionLine; }
-            set
-            {
-                _regressionLine = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RegressionLine)));
-            }            
-        
         }
 
-        private LinearRegression _regressionLinear;
+        private int _currentIndexOfDataset = 0;
 
-        public LinearRegression RegressionLinear
+        public int CurrentIndexOfDataSet
         {
-            get { return _regressionLinear; }
+            get { return _currentIndexOfDataset; }
             set
             {
-                _regressionLinear = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RegressionLinear)));
-            }
-        }
-
-        private PolynomialRegression _regressionPolynomial;
-
-        public PolynomialRegression RegressionPolynomial
-        {
-            get { return _regressionPolynomial; }
-            set
-            {
-                _regressionPolynomial = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RegressionPolynomial)));
-            }
-        }
-
-        public string LinearRegressionTypeLabelText { get; } = "Linear";
-        private bool _linearRegressionType = true;
-        public bool LinearRegressionType
-        {
-            get
-            {
-                return _linearRegressionType;
-            }
-            set
-            {
-                _linearRegressionType = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LinearRegressionType)));
-            }
-        }
-
-        public string PolynomialRegressionTypeLabelText { get; } = "Polynomial";
-        private bool _polynomialRegressionType = false;
-        public bool PolynomialRegressionType
-        {
-            get
-            {
-                return _polynomialRegressionType;
-            }
-            set
-            {
-                _polynomialRegressionType = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PolynomialRegressionType)));
-            }
-        }
-
-        public string PolynomialCoefficientLabelText { get; } = "Coefficient:";
-        private int _polynomialCoefficient = 3;
-        public int PolynomialCoefficient
-        {
-            get { return _polynomialCoefficient; }
-            set
-            {
-                if (value != _polynomialCoefficient)
-                {
-                    _polynomialCoefficient = value;
-                    UpdatePolynomial();
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PolynomialCoefficient)));
-                }
-            }
-        }
-
-        public string StepLabelText { get; } = "Step";
-        private double _step = 1;
-
-        public double Step
-        {
-            get { return _step; }
-            set
-            {
-                if (_step != value)
-                {
-                    _step = value;
-                    UpdatePolynomial();
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PolynomialCoefficient)));
-                }
+                _currentIndexOfDataset = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentIndexOfDataSet)));
             }
         }
 
@@ -506,26 +270,27 @@ namespace lineRegressionGFK.VM
 
                 private double _currentXValue;
 
-                public double CurrentXValue
-                {
-                    get { return _currentXValue; }
-                    set
-                    {
-                        _currentXValue = value;
-                        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentXValue)));
-                    }
-                }
-                private double _currentYValue;
+        public double CurrentXValue
+        {
+            get { return _currentXValue; }
+            set
+            {
+                _currentXValue = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentXValue)));
+            }
+        }
 
-                public double CurrentYValue
-                {
-                    get { return _currentYValue; }
-                    set
-                    {
-                        _currentYValue = value;
-                        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentYValue)));
-                    }
-                }
+        private double _currentYValue;
+
+        public double CurrentYValue
+        {
+            get { return _currentYValue; }
+            set
+            {
+                _currentYValue = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentYValue)));
+            }
+        }
 
         #region Button Properties
 
@@ -550,7 +315,9 @@ namespace lineRegressionGFK.VM
                         {
                             using (var saveStream = new StreamReader(saveFileDialog.OpenFile()))
                             {
-                                PointsCollection.Clear();                                
+                                //PointsCollection.Clear();
+                                DataSetsOfPoints.Add(new DataSet());
+                                CurrentIndexOfDataSet++;
                                 string readFile = saveStream.ReadToEnd();
                                 var fileLines = readFile.Split(new[] {"\n"}, StringSplitOptions.RemoveEmptyEntries);
                                 foreach (var fileLine in fileLines)
@@ -592,9 +359,11 @@ namespace lineRegressionGFK.VM
 
                     public ICommand ClearCommand => _clearCommand ?? new RelayCommand((obj) =>
                     {
-                        PointsCollection = new List<ChartPoint>();
-                        RegressionLinear = new LinearRegression();
-                        RegressionPolynomial = new PolynomialRegression();
+                        DataSetsOfPoints.Clear();
+                        DataSetsOfPoints.Add(new DataSet()
+                        {
+                            
+                        });
                     });
 
                     private ICommand _sizeChangedCommand;
@@ -624,7 +393,7 @@ namespace lineRegressionGFK.VM
                     });
 
 
-        public string ToCenterText { get; } = "Center chart";
+                    public string ToCenterText { get; } = "Center chart";
                     private ICommand _toCenterCommand;
                     public ICommand ToCenterCommand => _toCenterCommand ?? new RelayCommand((obj) =>
                     {
@@ -650,15 +419,9 @@ namespace lineRegressionGFK.VM
 
         #region Public Methods
 
-        public void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
-        {
-            Regex regex = new Regex("[^0-9]+");
-            e.Handled = regex.IsMatch(e.Text);
-        }
+        #endregion
 
-#endregion
-
-#region INotifyPropertyChanged Interface Implementation
+        #region INotifyPropertyChanged Interface Implementation
 
         public event PropertyChangedEventHandler PropertyChanged;
 

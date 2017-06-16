@@ -96,7 +96,8 @@
     <Compile Include="Converters\CoordinatesToSizeWithScaleMultiConverter.cs" />
     <Compile Include="Converters\DoubleInversionConverter.cs" />
     <Compile Include="Converters\InfoStringByBoolConverter.cs" />
-    <Compile Include="Converters\PointPositionScaleConverter.cs" />
+    <Compile Include="Converters\PointXScalePositionConverter.cs" />
+    <Compile Include="Converters\PointYScalePositionConverter.cs" />
     <Compile Include="Converters\PositionToStringMultiConverter.cs" />
     <Compile Include="Converters\ScalePositionForYPolynomialMultiConverter.cs" />
     <Compile Include="Converters\ScalePositionMultiConverter.cs" />

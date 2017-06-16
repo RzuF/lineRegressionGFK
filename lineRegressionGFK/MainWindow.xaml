@@ -14,11 +14,10 @@
         Title="MainWindow" Height="668.203" Width="964.19"
         x:Name="MainWindowControl">
     <Window.Resources>
-        <vm:MainPageViewModel x:Key="MainPageViewModel" x:Name="MainPageViewModel"/>
+        <vm:MainPageViewModel x:Key="MainPageViewModel"/>
         <converter:StringToInt32Converter x:Key="StringToInt32Converter"></converter:StringToInt32Converter>
         <converter:StringToDoubleConverter x:Key="StringToDoubleConverter"></converter:StringToDoubleConverter>
         <converter:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"></converter:BoolToVisibilityConverter>
-        <converter:PointPositionScaleConverter x:Key="PointPositionScaleConverter"></converter:PointPositionScaleConverter>
         <converter:SizePartsToSizeConverter x:Key="SizePartsToSizeConverter"></converter:SizePartsToSizeConverter>
         <converter:PositionToStringMultiConverter x:Key="PositionToStringMultiConverter"></converter:PositionToStringMultiConverter>
         <converter:ScalePositionMultiConverter x:Key="ScalePositionMultiConverter"></converter:ScalePositionMultiConverter>
@@ -26,6 +25,8 @@
         <converter:CoordinatesToSizeWithScaleMultiConverter x:Key="CoordinatesToSizeWithScaleMultiConverter"></converter:CoordinatesToSizeWithScaleMultiConverter>
         <converter:ScalePositionForYPolynomialMultiConverter x:Key="ScalePositionForYPolynomialMultiConverter"></converter:ScalePositionForYPolynomialMultiConverter>
         <converter:InfoStringByBoolConverter x:Key="InfoStringByBoolConverter"></converter:InfoStringByBoolConverter>
+        <converter:PointXScalePositionConverter x:Key="PointScaleXPositionConverter"></converter:PointXScalePositionConverter>
+        <converter:PointYScalePositionConverter x:Key="PointScaleYPositionConverter"></converter:PointYScalePositionConverter>
     </Window.Resources>
     <Window.DataContext>
         <StaticResource ResourceKey="MainPageViewModel"></StaticResource>
@@ -50,20 +51,39 @@
             <Button Content="{Binding SaveAsText}" Command="{Binding SaveAsCommand}" Margin="6"></Button>
             <Button Content="{Binding ClearText}" Command="{Binding ClearCommand}" Margin="6"></Button>
             <Button Content="{Binding PrintText}" Command="{Binding PrintCommand}" Margin="6"></Button>
-            <ListView ItemsSource="{Binding PointsCollection}" Margin="6">
-                <ListView.ItemTemplate>
+            <TabControl x:Name="ListOfPointsTab"  ItemsSource="{Binding DataSetsOfPoints}" SelectedIndex="{Binding CurrentIndexOfDataSet}">
+                <TabControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas Background="Transparent">
+                        </Canvas>
+                    </ItemsPanelTemplate>
+                </TabControl.ItemsPanel>
+                <TabControl.ItemTemplate>
+                    <!-- this is the header template-->
                     <DataTemplate>
-                        <Label>
-                            <Label.Content>
-                                <MultiBinding Converter="{StaticResource PositionToStringMultiConverter}">
-                                    <Binding Path="X"></Binding>
-                                    <Binding Path="Y"></Binding>
-                                </MultiBinding>
-                            </Label.Content>
-                        </Label>
+                        <TextBlock Text="{Binding SelectedIndex, ElementName=ListOfPointsTab}"></TextBlock>
                     </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
+                </TabControl.ItemTemplate>
+                <TabControl.ContentTemplate>
+                    <DataTemplate>
+                        <ListView ItemsSource="{Binding PointsCollection}" Margin="6">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Label>
+                                        <Label.Content>
+                                            <MultiBinding Converter="{StaticResource PositionToStringMultiConverter}">
+                                                <Binding Path="X"></Binding>
+                                                <Binding Path="Y"></Binding>
+                                            </MultiBinding>
+                                        </Label.Content>
+                                    </Label>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </DataTemplate>
+                </TabControl.ContentTemplate>
+            </TabControl>
+            
         </StackPanel>
 
         <Grid Grid.Column="1" x:Name="ChartCanvas" Background="Orange">
@@ -78,6 +98,35 @@
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <Canvas Background="{Binding BackgroundBrush}">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="SizeChanged">
+                                            <i:InvokeCommandAction Command="{Binding SizeChangedCommand}">
+                                                <i:InvokeCommandAction.CommandParameter>
+                                                    <MultiBinding Converter="{StaticResource SizePartsToSizeConverter}">
+                                                        <Binding Path="ActualHeight" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type Canvas}}"/>
+                                                        <Binding Path="ActualWidth" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type Canvas}}"/>
+                                                    </MultiBinding>
+                                                </i:InvokeCommandAction.CommandParameter>
+                                            </i:InvokeCommandAction>
+                                        </i:EventTrigger>
+                                        <i:EventTrigger EventName="Loaded">
+                                            <i:InvokeCommandAction Command="{Binding SizeChangedCommand}">
+                                                <i:InvokeCommandAction.CommandParameter>
+                                                    <MultiBinding Converter="{StaticResource SizePartsToSizeConverter}">
+                                                        <Binding Path="ActualHeight" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type Canvas}}"/>
+                                                        <Binding Path="ActualWidth" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type Canvas}}"/>
+                                                    </MultiBinding>
+                                                </i:InvokeCommandAction.CommandParameter>
+                                            </i:InvokeCommandAction>
+                                        </i:EventTrigger>
+                                        <i:EventTrigger EventName="Loaded">
+                                            <i:InvokeCommandAction Command="{Binding ToCenterCommand, Mode=OneTime}">
+                                                <i:InvokeCommandAction.CommandParameter>
+                                                    <Binding RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type Grid}}"/>
+                                                </i:InvokeCommandAction.CommandParameter>
+                                            </i:InvokeCommandAction>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
                                 </Canvas>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
@@ -156,196 +205,185 @@
                         </ItemsControl.ItemContainerStyle>
                     </ItemsControl>
 
-                    <ItemsControl ItemsSource="{Binding Path=PointsCollection}">
+                    <ItemsControl ItemsSource="{Binding DataSetsOfPoints}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <Canvas Background="Transparent">
-                                    <i:Interaction.Triggers>
-                                        <i:EventTrigger EventName="SizeChanged">
-                                            <i:InvokeCommandAction Command="{Binding SizeChangedCommand}">
-                                                <i:InvokeCommandAction.CommandParameter>
-                                                    <MultiBinding Converter="{StaticResource SizePartsToSizeConverter}">
-                                                        <Binding Path="ActualHeight" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type Canvas}}"/>
-                                                        <Binding Path="ActualWidth" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type Canvas}}"/>
-                                                    </MultiBinding>
-                                                </i:InvokeCommandAction.CommandParameter>
-                                            </i:InvokeCommandAction>
-                                        </i:EventTrigger>
-                                        <i:EventTrigger EventName="Loaded">
-                                            <i:InvokeCommandAction Command="{Binding SizeChangedCommand}">
-                                                <i:InvokeCommandAction.CommandParameter>
-                                                    <MultiBinding Converter="{StaticResource SizePartsToSizeConverter}">
-                                                        <Binding Path="ActualHeight" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type Canvas}}"/>
-                                                        <Binding Path="ActualWidth" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type Canvas}}"/>
-                                                    </MultiBinding>
-                                                </i:InvokeCommandAction.CommandParameter>
-                                            </i:InvokeCommandAction>
-                                        </i:EventTrigger>
-                                        <i:EventTrigger EventName="Loaded">
-                                            <i:InvokeCommandAction Command="{Binding ToCenterCommand, Mode=OneTime}">
-                                                <i:InvokeCommandAction.CommandParameter>
-                                                    <Binding RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type Grid}}"/>
-                                                </i:InvokeCommandAction.CommandParameter>
-                                            </i:InvokeCommandAction>
-                                        </i:EventTrigger>
-                                    </i:Interaction.Triggers>
                                 </Canvas>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Grid>
-                                    <Ellipse Visibility="{Binding EllipseTypePoint, Source={StaticResource MainPageViewModel}, Converter={StaticResource BoolToVisibilityConverter}}" Fill="{Binding PointBrush, Source={StaticResource MainPageViewModel}}" Width="{Binding PointRadius, Source={StaticResource MainPageViewModel}}" Height="{Binding PointRadius, Source={StaticResource MainPageViewModel}}" />
-                                    <Rectangle Visibility="{Binding RectangleTypePoint, Source={StaticResource MainPageViewModel}, Converter={StaticResource BoolToVisibilityConverter}}" Fill="{Binding PointBrush, Source={StaticResource MainPageViewModel}}" Width="{Binding PointRadius, Source={StaticResource MainPageViewModel}}" Height="{Binding PointRadius, Source={StaticResource MainPageViewModel}}" />
-                                    <Rectangle Visibility="{Binding DiamondTypePoint, Source={StaticResource MainPageViewModel}, Converter={StaticResource BoolToVisibilityConverter}}" Fill="{Binding PointBrush, Source={StaticResource MainPageViewModel}}" Width="{Binding PointRadius, Source={StaticResource MainPageViewModel}}" Height="{Binding PointRadius, Source={StaticResource MainPageViewModel}}" RenderTransformOrigin="0.5,0.5" >
-                                        <Rectangle.RenderTransform>
-                                            <TransformGroup>
-                                                <RotateTransform Angle="45"/>
-                                            </TransformGroup>
-                                        </Rectangle.RenderTransform>
-                                    </Rectangle>
-                                </Grid>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                        <ItemsControl.ItemContainerStyle>
-                            <Style>
-                                <Setter Property="Canvas.Top">
-                                    <Setter.Value>
-                                        <MultiBinding Converter="{StaticResource ScalePositionMultiConverter}">
-                                            <Binding Path="YForChart"/>
-                                            <Binding Path="Scale" Source="{StaticResource MainPageViewModel}"/>
-                                        </MultiBinding>
-                                    </Setter.Value>
-                                </Setter>
-                                <Setter Property="Canvas.Left">
-                                    <Setter.Value>
-                                        <MultiBinding Converter="{StaticResource ScalePositionMultiConverter}">
-                                            <Binding Path="XForChart"/>
-                                            <Binding Path="Scale" Source="{StaticResource MainPageViewModel}"/>
-                                        </MultiBinding>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </ItemsControl.ItemContainerStyle>
-                    </ItemsControl>
+                                    <ItemsControl x:Name="PointsControl" ItemsSource="{Binding PointsCollection}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <Canvas Background="Transparent">
+                                                </Canvas>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid>
+                                                    <Ellipse Visibility="{Binding DataContext.EllipseTypePoint, ElementName=PointsControl, Converter={StaticResource BoolToVisibilityConverter}}" Fill="{Binding DataContext.PointBrush, ElementName=PointsControl}" Width="{Binding DataContext.PointRadius, ElementName=PointsControl}" Height="{Binding DataContext.PointRadius, ElementName=PointsControl}">
 
-                    <ItemsControl ItemsSource="{Binding Path=RegressionLinear.GraphicRepresentation}" Visibility="{Binding LinearRegressionType, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <Canvas Background="Transparent">
-                                </Canvas>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Grid>
-                                    <Rectangle Fill="{Binding RegressionLineBrush, Source={StaticResource MainPageViewModel}}" Height="2px">
-                                        <Rectangle.Width>
-                                            <MultiBinding Converter="{StaticResource CoordinatesToSizeWithScaleMultiConverter}">
-                                                <Binding Path="XStart"/>
-                                                <Binding Path="XEnd"/>
-                                                <Binding Path="YStart"/>
-                                                <Binding Path="YEnd"/>
-                                                <Binding Path="Scale" Source="{StaticResource MainPageViewModel}"/>
-                                            </MultiBinding>
-                                        </Rectangle.Width>
-                                        <Rectangle.RenderTransform>
-                                            <TransformGroup>
-                                                <RotateTransform Angle="{Binding Alpha}"/>
-                                            </TransformGroup>
-                                        </Rectangle.RenderTransform>
-                                    </Rectangle>
-                                </Grid>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                        <ItemsControl.ItemContainerStyle>
-                            <Style>
-                                <Setter Property="Canvas.Left">
-                                    <Setter.Value>
-                                        <MultiBinding Converter="{StaticResource ScalePositionMultiConverter}">
-                                            <Binding Path="XStart"/>
-                                            <Binding Path="Scale" Source="{StaticResource MainPageViewModel}"/>
-                                        </MultiBinding>
-                                    </Setter.Value>
-                                </Setter>
-                                <Setter Property="Canvas.Top">
-                                    <Setter.Value>
-                                        <MultiBinding Converter="{StaticResource ScalePositionForYPolynomialMultiConverter}">
-                                            <Binding Path="YStart" Converter="{StaticResource DoubleInversionConverter}"/>
-                                            <Binding Path="Scale" Source="{StaticResource MainPageViewModel}"/>
-                                        </MultiBinding>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </ItemsControl.ItemContainerStyle>
-                    </ItemsControl>
+                                                    </Ellipse>
+                                                    <Rectangle Visibility="{Binding DataContext.RectangleTypePoint, ElementName=PointsControl, Converter={StaticResource BoolToVisibilityConverter}}" Fill="{Binding DataContext.PointBrush, ElementName=PointsControl}" Width="{Binding DataContext.PointRadius, ElementName=PointsControl}" Height="{Binding DataContext.PointRadius, ElementName=PointsControl}" />
+                                                    <Rectangle Visibility="{Binding DataContext.DiamondTypePoint, ElementName=PointsControl, Converter={StaticResource BoolToVisibilityConverter}}" Fill="{Binding DataContext.PointBrush, ElementName=PointsControl}" Width="{Binding DataContext.PointRadius, ElementName=PointsControl}" Height="{Binding DataContext.PointRadius, ElementName=PointsControl}" RenderTransformOrigin="0.5,0.5" >
+                                                        <Rectangle.RenderTransform>
+                                                            <TransformGroup>
+                                                                <RotateTransform Angle="45"/>
+                                                            </TransformGroup>
+                                                        </Rectangle.RenderTransform>
+                                                    </Rectangle>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                        <ItemsControl.ItemContainerStyle>
+                                            <Style>
+                                                <Setter Property="Canvas.Top">
+                                                    <Setter.Value>
+                                                        <MultiBinding Converter="{StaticResource PointScaleYPositionConverter}">
+                                                            <Binding Path="Y"/>
+                                                            <Binding Path="Scale" Source="{StaticResource MainPageViewModel}"/>
+                                                            <Binding Path="DataContext.PointRadius" ElementName="PointsControl"/>
+                                                        </MultiBinding>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Setter Property="Canvas.Left">
+                                                    <Setter.Value>
+                                                        <MultiBinding Converter="{StaticResource PointScaleXPositionConverter}">
+                                                            <Binding Path="X"/>
+                                                            <Binding Path="Scale" Source="{StaticResource MainPageViewModel}"/>
+                                                            <Binding Path="DataContext.PointRadius" ElementName="PointsControl"/>
+                                                        </MultiBinding>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Style>
+                                        </ItemsControl.ItemContainerStyle>
+                                    </ItemsControl>
 
-                    <ItemsControl ItemsSource="{Binding Path=RegressionPolynomial.GraphicRepresentation}" Visibility="{Binding PolynomialRegressionType, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <Canvas Background="Transparent">
-                                </Canvas>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Grid>
-                                    <Rectangle Fill="{Binding RegressionLineBrush, Source={StaticResource MainPageViewModel}}" Height="2px">
-                                        <Rectangle.Width>
-                                            <MultiBinding Converter="{StaticResource CoordinatesToSizeWithScaleMultiConverter}">
-                                                <Binding Path="XStart"/>
-                                                <Binding Path="XEnd"/>
-                                                <Binding Path="YStart"/>
-                                                <Binding Path="YEnd"/>
-                                                <Binding Path="Scale" Source="{StaticResource MainPageViewModel}"/>
-                                            </MultiBinding>
-                                        </Rectangle.Width>
-                                        <Rectangle.RenderTransform>
+                                    <ItemsControl ItemsSource="{Binding Path=RegressionLinear.GraphicRepresentation}" Visibility="{Binding LinearRegressionType, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <Canvas Background="Transparent">
+                                                </Canvas>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid>
+                                                    <Rectangle Fill="{Binding DataContext.RegressionLineBrush, ElementName=PointsControl}" Height="2px">
+                                                        <Rectangle.Width>
+                                                            <MultiBinding Converter="{StaticResource CoordinatesToSizeWithScaleMultiConverter}">
+                                                                <Binding Path="XStart"/>
+                                                                <Binding Path="XEnd"/>
+                                                                <Binding Path="YStart"/>
+                                                                <Binding Path="YEnd"/>
+                                                                <Binding Path="Scale" Source="{StaticResource MainPageViewModel}"/>
+                                                            </MultiBinding>
+                                                        </Rectangle.Width>
+                                                        <Rectangle.RenderTransform>
+                                                            <TransformGroup>
+                                                                <RotateTransform Angle="{Binding Alpha}"/>
+                                                            </TransformGroup>
+                                                        </Rectangle.RenderTransform>
+                                                    </Rectangle>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                        <ItemsControl.ItemContainerStyle>
+                                            <Style>
+                                                <Setter Property="Canvas.Left">
+                                                    <Setter.Value>
+                                                        <MultiBinding Converter="{StaticResource ScalePositionMultiConverter}">
+                                                            <Binding Path="XStart"/>
+                                                            <Binding Path="Scale" Source="{StaticResource MainPageViewModel}"/>
+                                                        </MultiBinding>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Setter Property="Canvas.Top">
+                                                    <Setter.Value>
+                                                        <MultiBinding Converter="{StaticResource ScalePositionForYPolynomialMultiConverter}">
+                                                            <Binding Path="YStart" Converter="{StaticResource DoubleInversionConverter}"/>
+                                                            <Binding Path="Scale" Source="{StaticResource MainPageViewModel}"/>
+                                                        </MultiBinding>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Style>
+                                        </ItemsControl.ItemContainerStyle>
+                                    </ItemsControl>
+
+                                    <ItemsControl ItemsSource="{Binding Path=RegressionPolynomial.GraphicRepresentation}" Visibility="{Binding PolynomialRegressionType, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <Canvas Background="Transparent">
+                                                </Canvas>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid>
+                                                    <Rectangle Fill="{Binding DataContext.RegressionLineBrush, ElementName=PointsControl}" Height="2px">
+                                                        <Rectangle.Width>
+                                                            <MultiBinding Converter="{StaticResource CoordinatesToSizeWithScaleMultiConverter}">
+                                                                <Binding Path="XStart"/>
+                                                                <Binding Path="XEnd"/>
+                                                                <Binding Path="YStart"/>
+                                                                <Binding Path="YEnd"/>
+                                                                <Binding Path="Scale" Source="{StaticResource MainPageViewModel}"/>
+                                                            </MultiBinding>
+                                                        </Rectangle.Width>
+                                                        <Rectangle.RenderTransform>
+                                                            <TransformGroup>
+                                                                <RotateTransform Angle="{Binding Alpha}"/>
+                                                            </TransformGroup>
+                                                        </Rectangle.RenderTransform>
+                                                    </Rectangle>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                        <ItemsControl.ItemContainerStyle>
+                                            <Style>
+                                                <Setter Property="Canvas.Left">
+                                                    <Setter.Value>
+                                                        <MultiBinding Converter="{StaticResource ScalePositionMultiConverter}">
+                                                            <Binding Path="XStart"/>
+                                                            <Binding Path="Scale" Source="{StaticResource MainPageViewModel}"/>
+                                                        </MultiBinding>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Setter Property="Canvas.Top">
+                                                    <Setter.Value>
+                                                        <MultiBinding Converter="{StaticResource ScalePositionForYPolynomialMultiConverter}">
+                                                            <Binding Path="YStart" Converter="{StaticResource DoubleInversionConverter}"/>
+                                                            <Binding Path="Scale" Source="{StaticResource MainPageViewModel}"/>
+                                                        </MultiBinding>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Style>
+                                        </ItemsControl.ItemContainerStyle>
+                                    </ItemsControl>
+
+                                    <TextBlock x:Name="InfoFrameLabel"  MouseEnter="InfoFrame_OnMouseEnter" MouseLeave="InfoFrame_OnMouseLeave" Visibility="Hidden"
+                                    HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10" Padding="5" Background="{Binding PointBrush}" Foreground="{Binding BackgroundBrush, Source={StaticResource MainPageViewModel}}" TextWrapping="Wrap">
+                                        <TextBlock.RenderTransform>
                                             <TransformGroup>
-                                                <RotateTransform Angle="{Binding Alpha}"/>
                                             </TransformGroup>
-                                        </Rectangle.RenderTransform>
-                                    </Rectangle>
+                                        </TextBlock.RenderTransform>
+                                        <TextBlock.Text>
+                                            <MultiBinding Mode="OneWay" Converter="{StaticResource InfoStringByBoolConverter}">
+                                                <Binding Path="RegressionLinear.InfoString"></Binding>
+                                                <Binding Path="RegressionPolynomial.InfoString"></Binding>
+                                                <Binding Path="LinearRegressionType"></Binding>
+                                            </MultiBinding>
+                                        </TextBlock.Text>
+                                    </TextBlock>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
-                        <ItemsControl.ItemContainerStyle>
-                            <Style>
-                                <Setter Property="Canvas.Left">
-                                    <Setter.Value>
-                                        <MultiBinding Converter="{StaticResource ScalePositionMultiConverter}">
-                                            <Binding Path="XStart"/>
-                                            <Binding Path="Scale" Source="{StaticResource MainPageViewModel}"/>
-                                        </MultiBinding>
-                                    </Setter.Value>
-                                </Setter>
-                                <Setter Property="Canvas.Top">
-                                    <Setter.Value>
-                                        <MultiBinding Converter="{StaticResource ScalePositionForYPolynomialMultiConverter}">
-                                            <Binding Path="YStart" Converter="{StaticResource DoubleInversionConverter}"/>
-                                            <Binding Path="Scale" Source="{StaticResource MainPageViewModel}"/>
-                                        </MultiBinding>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </ItemsControl.ItemContainerStyle>
                     </ItemsControl>
                 </Grid>
-
-                <TextBlock x:Name="InfoFrameLabel"  MouseEnter="InfoFrame_OnMouseEnter" MouseLeave="InfoFrame_OnMouseLeave"
-                        HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10" Padding="5" Background="{Binding PointBrush}" Foreground="{Binding BackgroundBrush}" TextWrapping="Wrap">
-                    <TextBlock.RenderTransform>
-                        <TransformGroup>
-                        </TransformGroup>
-                    </TextBlock.RenderTransform>
-                    <TextBlock.Text>
-                        <MultiBinding Mode="OneWay" Converter="{StaticResource InfoStringByBoolConverter}">
-                            <Binding Path="RegressionLinear.InfoString"></Binding>
-                            <Binding Path="RegressionPolynomial.InfoString"></Binding>
-                            <Binding Path="LinearRegressionType"></Binding>
-                        </MultiBinding>
-                    </TextBlock.Text>
-                </TextBlock>
 
             </Grid>
 
@@ -368,49 +406,67 @@
                         <Label Content="{Binding XDeltaLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
                         <TextBox Text="{Binding LineWidthDelta, Mode=TwoWay, Converter={StaticResource StringToDoubleConverter}}" helpers:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text" VerticalAlignment="Center"/>
                     </DockPanel>
-                    <StackPanel Orientation="Horizontal" Margin="6">
-                        <RadioButton Content="{Binding EllipseTypePointLabelText}" IsChecked="{Binding EllipseTypePoint}"></RadioButton>
-                        <RadioButton Content="{Binding RectangleTypePointLabelText}" IsChecked="{Binding RectangleTypePoint}"></RadioButton>
-                        <RadioButton Content="{Binding DiamondTypePointLabelText}" IsChecked="{Binding DiamondTypePoint}"></RadioButton>
-                    </StackPanel>
-                    <DockPanel Margin="6">
-                        <Label Content="{Binding PointRadiusLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
-                        <TextBox Text="{Binding PointRadius, Mode=TwoWay, Converter={StaticResource StringToInt32Converter}}" helpers:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text" VerticalAlignment="Center"/>
-                    </DockPanel>
                     <DockPanel Margin="6">
                         <Label Content="{Binding ScaleLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
                         <TextBox Text="{Binding Scale, Mode=TwoWay, Converter={StaticResource StringToDoubleConverter}}" helpers:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text" VerticalAlignment="Center"/>
-                    </DockPanel>
-                </StackPanel>
-                
-                <StackPanel Grid.Column="1">
-                    <DockPanel Margin="6">
-                        <Label Content="{Binding PointColorLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
-                        <xctk:ColorPicker SelectedColor="{Binding PointColor}"/>
-                    </DockPanel>
-                    <DockPanel Margin="6">
-                        <Label Content="{Binding LineColorLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
-                        <xctk:ColorPicker SelectedColor="{Binding LineColor}"/>
-                    </DockPanel>
-                    <DockPanel Margin="6">
-                        <Label Content="{Binding RegressionLineColorLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
-                        <xctk:ColorPicker SelectedColor="{Binding RegressionLineColor}"/>
                     </DockPanel>
                     <DockPanel Margin="6">
                         <Label Content="{Binding BackgroundColorLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
                         <xctk:ColorPicker SelectedColor="{Binding BackgroundColor}"/>
                     </DockPanel>
                     <DockPanel Margin="6">
-                        <RadioButton Content="{Binding LinearRegressionTypeLabelText}" IsChecked="{Binding LinearRegressionType}" VerticalAlignment="Center"></RadioButton>
-                        <RadioButton Content="{Binding PolynomialRegressionTypeLabelText}" IsChecked="{Binding PolynomialRegressionType}" VerticalAlignment="Center"></RadioButton>
-                        <Label Content="{Binding PolynomialCoefficientLabelText}" Margin="6,0"></Label>
-                        <TextBox Text="{Binding PolynomialCoefficient, Mode=TwoWay, Converter={StaticResource StringToInt32Converter}}" helpers:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text" VerticalAlignment="Center"/>
-                    </DockPanel>
-                    <DockPanel Margin="6">
-                        <Label Content="{Binding StepLabelText}"></Label>
-                        <TextBox Text="{Binding Step, Mode=TwoWay, Converter={StaticResource StringToDoubleConverter}}" helpers:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text" VerticalAlignment="Center"/>
+                        <Label Content="{Binding LineColorLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
+                        <xctk:ColorPicker SelectedColor="{Binding LineColor}"/>
                     </DockPanel>
                 </StackPanel>
+
+                <TabControl x:Name="OptionsTab"  Grid.Column="1" TabStripPlacement="Right" ItemsSource="{Binding DataSetsOfPoints}">
+                    <TabControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Canvas Background="Transparent">
+                            </Canvas>
+                        </ItemsPanelTemplate>
+                    </TabControl.ItemsPanel>
+                    <TabControl.ItemTemplate>
+                        <!-- this is the header template-->
+                        <DataTemplate>
+                            <TextBlock Text="{Binding SelectedIndex, ElementName=OptionsTab}"></TextBlock>
+                        </DataTemplate>
+                    </TabControl.ItemTemplate>
+                    <TabControl.ContentTemplate>
+                        <DataTemplate>
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="6">
+                                    <RadioButton Content="{Binding EllipseTypePointLabelText}" IsChecked="{Binding EllipseTypePoint}"></RadioButton>
+                                    <RadioButton Content="{Binding RectangleTypePointLabelText}" IsChecked="{Binding RectangleTypePoint}"></RadioButton>
+                                    <RadioButton Content="{Binding DiamondTypePointLabelText}" IsChecked="{Binding DiamondTypePoint}"></RadioButton>
+                                </StackPanel>
+                                <DockPanel Margin="6">
+                                    <Label Content="{Binding PointRadiusLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
+                                    <TextBox Text="{Binding PointRadius, Mode=TwoWay, Converter={StaticResource StringToInt32Converter}}" helpers:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text" VerticalAlignment="Center"/>
+                                </DockPanel>
+                                <DockPanel Margin="6">
+                                    <Label Content="{Binding PointColorLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
+                                    <xctk:ColorPicker SelectedColor="{Binding PointColor}"/>
+                                </DockPanel>
+                                <DockPanel Margin="6">
+                                    <Label Content="{Binding RegressionLineColorLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
+                                    <xctk:ColorPicker SelectedColor="{Binding RegressionLineColor}"/>
+                                </DockPanel>
+                                <DockPanel Margin="6">
+                                    <RadioButton Content="{Binding LinearRegressionTypeLabelText}" IsChecked="{Binding LinearRegressionType}" VerticalAlignment="Center"></RadioButton>
+                                    <RadioButton Content="{Binding PolynomialRegressionTypeLabelText}" IsChecked="{Binding PolynomialRegressionType}" VerticalAlignment="Center"></RadioButton>
+                                    <Label Content="{Binding PolynomialCoefficientLabelText}" Margin="6,0"></Label>
+                                    <TextBox Text="{Binding PolynomialCoefficient, Mode=TwoWay, Converter={StaticResource StringToInt32Converter}}" helpers:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text" VerticalAlignment="Center"/>
+                                </DockPanel>
+                                <DockPanel Margin="6">
+                                    <Label Content="{Binding StepLabelText}"></Label>
+                                    <TextBox Text="{Binding Step, Mode=TwoWay, Converter={StaticResource StringToDoubleConverter}}" helpers:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text" VerticalAlignment="Center"/>
+                                </DockPanel>
+                            </StackPanel>
+                        </DataTemplate>
+                    </TabControl.ContentTemplate>
+                </TabControl>
             </Grid>
         </Grid>
     </Grid>
