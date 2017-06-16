@@ -479,7 +479,7 @@ namespace lineRegressionGFK.VM
         public string CopyToClipboardText => "Copy chart to clipboard";
         private ICommand _copyToClipboardCommand;
         /// <summary>
-        /// Command for saving chart as picture. Use lazy initialization.
+        /// Command for saving chart to clipboard. Use lazy initialization.
         /// </summary>
         public ICommand CopyToClipboardCommand => _copyToClipboardCommand ?? new RelayCommand((obj) =>
         {          

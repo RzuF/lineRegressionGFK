@@ -209,6 +209,20 @@ namespace lineRegressionGFK.Models
             }
         }
 
+        private OrthogonalRegression _regressionOrthogonal;
+        /// <summary>
+        /// Property holds information about orthogonal regression of current set of points
+        /// </summary>
+        public OrthogonalRegression RegressionOrthogonal
+        {
+            get { return _regressionOrthogonal; }
+            set
+            {
+                _regressionOrthogonal = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RegressionOrthogonal)));
+            }
+        }
+
         private PolynomialRegression _regressionPolynomial;
         /// <summary>
         /// Property holds information about polynomial regression of current set of points and specified coefficient
@@ -248,13 +262,44 @@ namespace lineRegressionGFK.Models
                     _isChangePending = false;
                     return;
                 }
-                if (value == false && _polynomialRegressionType == false)
+                if (value == false && _polynomialRegressionType == false && _orthogonalRegressionType == false)
                 {
                     _isChangePending = true;
                     return;
                 }
                 _linearRegressionType = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LinearRegressionType)));
+            }
+        }
+
+        /// <summary>
+        /// Property holds text to display in Label
+        /// </summary>
+        public string OrthogonalRegressionTypeLabelText { get; } = "Orthogonal";
+        private bool _orthogonalRegressionType = false;
+        /// <summary>
+        /// Property holds information if orthogonal regression is currently selected. Default true.
+        /// </summary>
+        public bool OrthogonalRegressionType
+        {
+            get
+            {
+                return _orthogonalRegressionType;
+            }
+            set
+            {
+                if (_isChangePending)
+                {
+                    _isChangePending = false;
+                    return;
+                }
+                if (value == false && _polynomialRegressionType == false && _linearRegressionType == false)
+                {
+                    _isChangePending = true;
+                    return;
+                }
+                _orthogonalRegressionType = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(OrthogonalRegressionType)));
             }
         }
 
@@ -279,7 +324,7 @@ namespace lineRegressionGFK.Models
                     _isChangePending = false;
                     return;
                 }
-                if (value == false && _linearRegressionType == false)
+                if (value == false && _linearRegressionType == false && _orthogonalRegressionType == false)
                 {
                     _isChangePending = true;
                     return;
@@ -364,7 +409,7 @@ namespace lineRegressionGFK.Models
         #region Update Methods
 
         /// <summary>
-        /// Method for adding point to this DataSet. Update linear and polynomial regression data.
+        /// Method for adding point to this DataSet. Update linear, orthogonal and polynomial regression data.
         /// </summary>
         /// <param name="xValue">X coordinate of Point</param>
         /// <param name="yValue">Y coordinate of Point</param>
@@ -393,6 +438,8 @@ namespace lineRegressionGFK.Models
                 var regressionCoefficients = Regression.Polynomial(PointsCollection.Select(x => x.X).ToArray(), PointsCollection.Select(x => x.Y).ToArray(), 1);
                 var regressionStd = Regression.LinearStdDev(PointsCollection.Select(x => x.X).ToArray(), PointsCollection.Select(x => x.Y).ToArray());
 
+                var regressionOrthogonal = Regression.Orthogonal(PointsCollection.Select(x => x.X).ToArray(), PointsCollection.Select(x => x.Y).ToArray());
+
                 RegressionLinear = new LinearRegression()
                 {
                     GraphicRepresentation = PolynomialLineCreatorHelper.Create(regressionCoefficients, MinXValue, MaxXValue, Step),
@@ -400,6 +447,13 @@ namespace lineRegressionGFK.Models
                     BParameter = regressionCoefficients[0],
                     StdA = regressionStd.Item1,
                     StdB = regressionStd.Item2
+                };
+
+                RegressionOrthogonal = new OrthogonalRegression()
+                {
+                    GraphicRepresentation = PolynomialLineCreatorHelper.Create(regressionOrthogonal, MinXValue, MaxXValue, Step),
+                    AParameter = regressionOrthogonal[1],
+                    BParameter = regressionOrthogonal[0]
                 };
 
                 UpdatePolynomial();

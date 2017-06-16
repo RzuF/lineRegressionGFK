@@ -332,6 +332,57 @@
                                         </ItemsControl.ItemContainerStyle>
                                     </ItemsControl>
 
+                                    <ItemsControl ItemsSource="{Binding Path=RegressionOrthogonal.GraphicRepresentation}" Visibility="{Binding OrthogonalRegressionType, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <Canvas Background="Transparent">
+                                                </Canvas>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid>
+                                                    <Rectangle Fill="{Binding DataContext.RegressionLineBrush, ElementName=PointsControl}" Height="2px">
+                                                        <Rectangle.Width>
+                                                            <MultiBinding Converter="{StaticResource CoordinatesToSizeWithScaleMultiConverter}">
+                                                                <Binding Path="XStart"/>
+                                                                <Binding Path="XEnd"/>
+                                                                <Binding Path="YStart"/>
+                                                                <Binding Path="YEnd"/>
+                                                                <Binding Path="Scale" Source="{StaticResource MainPageViewModel}"/>
+                                                            </MultiBinding>
+                                                        </Rectangle.Width>
+                                                        <Rectangle.RenderTransform>
+                                                            <TransformGroup>
+                                                                <RotateTransform Angle="{Binding Alpha}"/>
+                                                            </TransformGroup>
+                                                        </Rectangle.RenderTransform>
+                                                    </Rectangle>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                        <ItemsControl.ItemContainerStyle>
+                                            <Style>
+                                                <Setter Property="Canvas.Left">
+                                                    <Setter.Value>
+                                                        <MultiBinding Converter="{StaticResource ScalePositionMultiConverter}">
+                                                            <Binding Path="XStart"/>
+                                                            <Binding Path="Scale" Source="{StaticResource MainPageViewModel}"/>
+                                                        </MultiBinding>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Setter Property="Canvas.Top">
+                                                    <Setter.Value>
+                                                        <MultiBinding Converter="{StaticResource ScalePositionForYPolynomialMultiConverter}">
+                                                            <Binding Path="YStart" Converter="{StaticResource DoubleInversionConverter}"/>
+                                                            <Binding Path="Scale" Source="{StaticResource MainPageViewModel}"/>
+                                                        </MultiBinding>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Style>
+                                        </ItemsControl.ItemContainerStyle>
+                                    </ItemsControl>
+
                                     <ItemsControl ItemsSource="{Binding Path=RegressionPolynomial.GraphicRepresentation}" Visibility="{Binding PolynomialRegressionType, Converter={StaticResource BoolToVisibilityConverter}}">
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
@@ -396,8 +447,10 @@
                     <TextBlock.Text>
                         <MultiBinding Mode="OneWay" Converter="{StaticResource InfoStringByBoolConverter}">
                             <Binding Path="CurrentDataSet.RegressionLinear.InfoString"></Binding>
+                            <Binding Path="CurrentDataSet.RegressionOrthogonal.InfoString"></Binding>
                             <Binding Path="CurrentDataSet.RegressionPolynomial.InfoString"></Binding>
                             <Binding Path="CurrentDataSet.LinearRegressionType"></Binding>
+                            <Binding Path="CurrentDataSet.OrthogonalRegressionType"></Binding>
                         </MultiBinding>
                     </TextBlock.Text>
                 </TextBlock>
@@ -465,6 +518,7 @@
                                 </DockPanel>
                                 <DockPanel Margin="6">
                                     <RadioButton Content="{Binding LinearRegressionTypeLabelText}" IsChecked="{Binding LinearRegressionType}" VerticalAlignment="Center"></RadioButton>
+                                    <RadioButton Content="{Binding OrthogonalRegressionTypeLabelText}" IsChecked="{Binding OrthogonalRegressionType}" VerticalAlignment="Center"></RadioButton>
                                     <RadioButton Content="{Binding PolynomialRegressionTypeLabelText}" IsChecked="{Binding PolynomialRegressionType}" VerticalAlignment="Center"></RadioButton>
                                     <Label Content="{Binding PolynomialCoefficientLabelText}" Margin="6,0"></Label>
                                     <TextBox Text="{Binding PolynomialCoefficient, Mode=TwoWay, Converter={StaticResource StringToInt32Converter}}" helpers:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text" VerticalAlignment="Center"/>

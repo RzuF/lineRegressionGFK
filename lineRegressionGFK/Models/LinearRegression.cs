@@ -43,7 +43,7 @@ namespace lineRegressionGFK.Models
         /// <summary>
         /// Property holds information about text to display in frame
         /// </summary>
-        public string InfoString => $"F(x) = {AParameter}x + {BParameter}\nStd(a) = {StdA}; Std(b)={StdB}";
+        public string InfoString => $"F(x) = {AParameter}x + ({BParameter})\nStd(a) = {StdA}; Std(b)={StdB}";
 
         /// <summary>
         /// Impementation of INotifyPropertyChanged interface, neccessary for proper Binding behaviour.

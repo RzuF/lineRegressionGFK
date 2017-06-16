@@ -1,11 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
+using System.Threading.Tasks;
 using lineRegressionGFK.Annotations;
+using lineRegressionGFK.Models;
 
 namespace lineRegressionGFK.Models
-{    
-    public class PolynomialRegression : INotifyPropertyChanged
+{ 
+    /// <summary>
+    /// Model of Linear regression
+    /// </summary>
+    public class OrthogonalRegression : INotifyPropertyChanged
     {
         private List<ChartPolynomialPart> _graphicRepresentation;
         /// <summary>
@@ -22,29 +30,20 @@ namespace lineRegressionGFK.Models
         }
 
         /// <summary>
-        /// Property holds array of coefficient of current polynomial
+        /// Property holds information about A paremeter of orthogonal regression
         /// </summary>
-        public double[] Coefficients { get; set; } = new double[0];
+        public double AParameter { get; set; }
         /// <summary>
-        /// Property holds information about text to display in frame
+        /// Property holds information about B parameter of orthogonal regression
         /// </summary>
-        public string InfoString
-        {
-            get
-            {
-                List<string> expressonStrings = new List<string>();
-                for(int i = 0; i < Coefficients.Length; i++)
-                {
-                    expressonStrings.Add($"({Coefficients[i]}x^{i})");
-                }
-                return $"F(x) = {string.Join(" + ", expressonStrings)}";
-            }
-        }
+        public double BParameter { get; set; }
+        public string InfoString => $"F(x) = {AParameter}x + ({BParameter})";
 
         /// <summary>
         /// Impementation of INotifyPropertyChanged interface, neccessary for proper Binding behaviour.
         /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
+
         /// <summary>
         /// Impementation of INotifyPropertyChanged interface, neccessary for proper Binding behaviour.
         /// </summary>
