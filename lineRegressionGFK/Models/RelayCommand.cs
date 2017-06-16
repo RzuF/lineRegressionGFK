@@ -7,6 +7,9 @@ using System.Windows.Input;
 
 namespace lineRegressionGFK.Models
 {
+    /// <summary>
+    /// Implementation of ICommand interface. Wrapper for methods to use them in Binding via MVVM patter-design.
+    /// </summary>
     public class RelayCommand : ICommand
     {
         private Action<object> _execute;
