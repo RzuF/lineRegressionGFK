@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace lineRegressionGFK.Models
 {
+    /// <summary>
+    /// Implementation of ICommand interface. Wrapper for methods to use them in Binding via MVVM patter-design.
+    /// </summary>
     public class RelayCommand : ICommand
     {
         private Action<object> _execute;
@@ -64,7 +63,6 @@ namespace lineRegressionGFK.Models
         public void OnCanExecuteChanged()
         {
             EventHandler handler = CanExecuteChangedInternal;
-            //DispatcherHelper.BeginInvokeOnUIThread(() => handler.Invoke(this, EventArgs.Empty));
             handler?.Invoke(this, EventArgs.Empty);
         }
 
