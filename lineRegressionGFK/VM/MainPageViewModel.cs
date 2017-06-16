@@ -27,19 +27,12 @@ using OpenFileDialog = System.Windows.Forms.OpenFileDialog;
 namespace lineRegressionGFK.VM
 {
     public class MainPageViewModel : INotifyPropertyChanged
-    {        
-        public static bool ManipulationStarted { get; set; } = false;
+    {
+        #region Private Variables
+
         private Size _renderSize;
 
-        public Size RenderSize
-        {
-            get { return _renderSize; }
-            set
-            {
-                _renderSize = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RenderSize)));
-            }
-        }
+        #endregion        
 
         #region Private Properties
 
@@ -51,9 +44,33 @@ namespace lineRegressionGFK.VM
 
         #endregion
 
-        #region Private Helper Methods     
+        #region Private Helper Methods   
 
-        
+        private void AddPointToPointsCollection(double xValue, double yValue)
+        {
+            if (xValue > MaxXValue)
+                MaxXValue = xValue;
+
+            if (xValue < MinXValue)
+                MinXValue = xValue;
+
+            if (yValue > MaxYValue)
+                MaxYValue = yValue;
+
+            if (yValue < MinYValue)
+                MinYValue = yValue;
+
+            DataSetsOfPoints[CurrentIndexOfDataSet].AddPointToPointsCollection(xValue, yValue);
+
+            LineWidthDelta = (MaxXValue - MinXValue) / 20.0;
+            LineHighDelta = (MaxYValue - MinXValue) / 20.0;
+            if (LineWidthDelta > 100)
+                LineWidthDelta = Math.Round((MaxXValue - MinXValue) / 2000.0, 0) * 100;
+            if (LineHighDelta > 100)
+                LineHighDelta = Math.Round((MaxYValue - MinYValue) / 2000.0, 0) * 100;
+
+            UpdateAllChartElements();
+        }
 
         void UpdateHorizontalLines()
         {
@@ -108,33 +125,7 @@ namespace lineRegressionGFK.VM
             {
                 Id = 1
             }
-        };
-
-        public void AddPointToPointsCollection(double xValue, double yValue)
-        {
-            if (xValue > MaxXValue)
-                MaxXValue = xValue;
-
-            if (xValue < MinXValue)
-                MinXValue = xValue;
-
-            if (yValue > MaxYValue)
-                MaxYValue = yValue;
-
-            if (yValue < MinYValue)
-                MinYValue = yValue;
-
-            DataSetsOfPoints[CurrentIndexOfDataSet].AddPointToPointsCollection(xValue, yValue);
-
-            LineWidthDelta = (MaxXValue - MinXValue) / 20.0;
-            LineHighDelta = (MaxYValue - MinXValue) / 20.0;
-            if(LineWidthDelta > 100)
-                LineWidthDelta = Math.Round((MaxXValue - MinXValue) / 2000.0, 0) * 100;
-            if(LineHighDelta > 100)
-                LineHighDelta = Math.Round((MaxYValue - MinYValue) / 2000.0, 0) * 100;
-
-            UpdateAllChartElements();
-        }
+        };        
 
         public string LineColorLabelText { get; } = "Pick line color";
         private Color _lineColor = Colors.White;
@@ -269,8 +260,6 @@ namespace lineRegressionGFK.VM
 
         public DataSet CurrentDataSet => DataSetsOfPoints[_currentIndexOfDataset];
 
-
-
         #endregion
 
         #region Menu Properties
@@ -302,6 +291,8 @@ namespace lineRegressionGFK.VM
             }
         }
 
+        #endregion
+
         #region Button Properties
 
         public string AddButtonText => "Add";
@@ -319,7 +310,7 @@ namespace lineRegressionGFK.VM
 
         public ICommand FromFileCommand => _fromFileCommand ?? new RelayCommand((obj) =>
         {
-            var saveFileDialog = new OpenFileDialog() {RestoreDirectory = true};
+            var saveFileDialog = new OpenFileDialog() { RestoreDirectory = true };
 
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
@@ -331,12 +322,12 @@ namespace lineRegressionGFK.VM
                     });
                     CurrentIndexOfDataSet++;
                     string readFile = saveStream.ReadToEnd();
-                    var fileLines = readFile.Split(new[] {"\n"}, StringSplitOptions.RemoveEmptyEntries);
+                    var fileLines = readFile.Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
                     foreach (var fileLine in fileLines)
-                    {                        
-                        var xy = fileLine.Replace(",", ".").Split(new[] {" ", ";", "\t"},
+                    {
+                        var xy = fileLine.Replace(",", ".").Split(new[] { " ", ";", "\t" },
                             StringSplitOptions.RemoveEmptyEntries);
-                        double x, y;                        
+                        double x, y;
                         if (xy.Length == 2 && double.TryParse(xy[0], NumberStyles.Any, new CultureInfo("en-US"), out x) && double.TryParse(xy[1], NumberStyles.Any, new CultureInfo("en-US"), out y))
                         {
                             AddPointToPointsCollection(x, y);
@@ -351,12 +342,12 @@ namespace lineRegressionGFK.VM
 
         public ICommand SaveAsCommand => _saveAsCommand ?? new RelayCommand((obj) =>
         {
-            var saveFileDialog = new System.Windows.Forms.SaveFileDialog() {RestoreDirectory = true};
+            var saveFileDialog = new System.Windows.Forms.SaveFileDialog() { RestoreDirectory = true };
 
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
-                var renderTargetBitmap = new RenderTargetBitmap((int) MainWindow.ChartGrid.RenderSize.Width,
-                    (int) MainWindow.ChartGrid.RenderSize.Height, 96d, 85d, PixelFormats.Pbgra32);
+                var renderTargetBitmap = new RenderTargetBitmap((int)MainWindow.ChartGrid.RenderSize.Width,
+                    (int)MainWindow.ChartGrid.RenderSize.Height, 96d, 85d, PixelFormats.Pbgra32);
                 renderTargetBitmap.Render(MainWindow.ChartGrid);
                 using (var saveStream = saveFileDialog.OpenFile())
                 {
@@ -446,7 +437,7 @@ namespace lineRegressionGFK.VM
 
         public ICommand SizeChangedCommand => _sizeChangedCommand ?? new RelayCommand((obj) =>
         {
-            RenderSize = (Size) obj;
+            _renderSize = (Size)obj;
         });
 
         private ICommand _radioChangedCommand;
@@ -486,8 +477,6 @@ namespace lineRegressionGFK.VM
 
         #endregion
 
-        #endregion
-
         #region Public Methods
 
         #endregion
@@ -502,6 +491,6 @@ namespace lineRegressionGFK.VM
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-#endregion
+        #endregion
     }
 }

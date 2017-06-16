@@ -109,12 +109,10 @@
     <Compile Include="Models\ChartLine.cs" />
     <Compile Include="Models\ChartPoint.cs" />
     <Compile Include="Models\ChartPolynomialPart.cs" />
-    <Compile Include="Models\ChartRegressionLine.cs" />
     <Compile Include="Models\DataSet.cs" />
     <Compile Include="Models\LinearRegression.cs" />
     <Compile Include="Models\PolynomialRegression.cs" />
     <Compile Include="Models\Regression.cs" />
-    <Compile Include="Models\PointTypeEnum.cs" />
     <Compile Include="Models\RelayCommand.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="VM\MainPageViewModel.cs" />

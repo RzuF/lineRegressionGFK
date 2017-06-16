@@ -16,7 +16,7 @@ namespace lineRegressionGFK.Helpers
                 new ChartPolynomialPart()
                 {
                     XStart = start,
-                    YStart = calculateValue(start, coefficients),
+                    YStart = CalculateValue(start, coefficients),
                 }
             };
 
@@ -26,7 +26,7 @@ namespace lineRegressionGFK.Helpers
                 {
                     var x = chartPolynomialParts.Last();
                 }
-                double currentValueOfPolynomialStep = calculateValue(i, coefficients);
+                double currentValueOfPolynomialStep = CalculateValue(i, coefficients);
                 chartPolynomialParts.Last().XEnd = i;
                 chartPolynomialParts.Last().YEnd = currentValueOfPolynomialStep;
                 chartPolynomialParts.Add(new ChartPolynomialPart()
@@ -42,7 +42,7 @@ namespace lineRegressionGFK.Helpers
             return chartPolynomialParts;
         }
 
-        private static double calculateValue(double x, double[] coefficients)
+        private static double CalculateValue(double x, double[] coefficients)
         {
             double result = 0;
             for (int i = 0; i < coefficients.Length; i++)

@@ -10,33 +10,10 @@ using lineRegressionGFK.Annotations;
 
 namespace lineRegressionGFK.Models
 {
-    public class ChartPoint : INotifyPropertyChanged
+    public class ChartPoint
     {
-        private double _x;
+        public double X { get; set; }
 
-        public double X
-        {
-            get { return _x; }
-            set { _x = value; }
-        }
-
-        public double XForChart { get; set; }
-        // TODO: Make cooridnated dependent of thr rest of the points
-
-        private double _y;
-        public double Y {
-            get { return _y; }
-            set { _y = value; }
-        }
-
-        public double YForChart { get; set; }
-        // TODO: Make cooridnated dependent of thr rest of the points
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+        public double Y { get; set; }
     }
 }

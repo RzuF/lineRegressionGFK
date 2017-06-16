@@ -10,12 +10,9 @@ namespace lineRegressionGFK.Models
     public class ChartLine
     {
         public double PositionFromBeggining { get; set; }
-
         public double Size { get; set; }
-
         public double OffsetX => Size / -2;
         public string StringValue { get; set; }
-
         public double Opacity { get; set; }
     }
 }

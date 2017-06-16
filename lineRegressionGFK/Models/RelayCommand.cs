@@ -64,7 +64,6 @@ namespace lineRegressionGFK.Models
         public void OnCanExecuteChanged()
         {
             EventHandler handler = CanExecuteChangedInternal;
-            //DispatcherHelper.BeginInvokeOnUIThread(() => handler.Invoke(this, EventArgs.Empty));
             handler?.Invoke(this, EventArgs.Empty);
         }
 

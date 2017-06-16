@@ -1,21 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using lineRegressionGFK.VM;
-using lineRegressionGFK.Models;
 using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 
 namespace lineRegressionGFK
@@ -35,26 +22,7 @@ namespace lineRegressionGFK
         public MainWindow()
         {
             InitializeComponent();
-            (Resources["MainPageViewModel"] as MainPageViewModel).MainWindow = this;
-
-#if DEBUG
-            ObservableCollection<ChartPoint> mockCollection = new ObservableCollection<ChartPoint>()
-            {
-                new ChartPoint() {X = 0, Y = 0},
-                new ChartPoint() {X = 10, Y = 10},
-                new ChartPoint() {X = 20, Y = 40},
-                new ChartPoint() {X = 30, Y = 30},
-                new ChartPoint() {X = 40, Y = 50},
-                new ChartPoint() {X = 50, Y = 60},
-                new ChartPoint() {X = 60, Y = 70},
-                new ChartPoint() {X = 70, Y = 65},
-            };
-
-            foreach (var chartPoint in mockCollection)
-            {
-                (Resources["MainPageViewModel"] as MainPageViewModel)?.AddPointToPointsCollection((int)chartPoint.X, (int)chartPoint.Y);
-            }
-#endif            
+            (Resources["MainPageViewModel"] as MainPageViewModel).MainWindow = this;   
         }
 
         private void ChartGrid_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -126,27 +94,9 @@ namespace lineRegressionGFK
             }
         }
 
-        private void InfoFrame_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {                      
-            
-        }
-
-        private void InfoFrame_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            _manipulationStartedInfoFrame = false;
-        }
-
         private void InfoFrame_OnMouseLeave(object sender, MouseEventArgs e)
         {            
             _canManipulateChart = true;
-        }
-
-        private void InfoFrame_OnMouseMove(object sender, MouseEventArgs e)
-        {
-            if (!_manipulationStartedInfoFrame)
-                return;
-
-            
         }
 
         private void InfoFrame_OnMouseEnter(object sender, MouseEventArgs e)
