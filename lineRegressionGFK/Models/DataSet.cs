@@ -335,7 +335,8 @@ namespace lineRegressionGFK.Models
 
         #region Indetification Properties
 
-        public string Name { get; set; }
+        public int Id { get; set; }
+        public string Name => $"DataSet {Id}";
 
         #endregion
 

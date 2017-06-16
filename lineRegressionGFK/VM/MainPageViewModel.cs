@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -43,10 +44,10 @@ namespace lineRegressionGFK.VM
         #region Private Properties
 
         public MainWindow MainWindow { get; set; }
-        public double? MaxXValue { get; private set; } = 100;
-        public double? MaxYValue { get; private set; } = 100;
-        public double? MinXValue { get; private set; } = -100;
-        public double? MinYValue { get; private set; } = -100;
+        public double MaxXValue { get; private set; } = 100;
+        public double MaxYValue { get; private set; } = 100;
+        public double MinXValue { get; private set; } = -100;
+        public double MinYValue { get; private set; } = -100;
 
         #endregion
 
@@ -62,7 +63,7 @@ namespace lineRegressionGFK.VM
             {
                 if (_renderSize.Height == 0)
                     break;
-                var max = MaxYValue.Value > -MinYValue.Value ? MaxYValue.Value : -MinYValue.Value;
+                var max = MaxYValue > -MinYValue ? MaxYValue : -MinYValue;
                 double position = i * LineHighDelta;
                 if (i * LineHighDelta > max && position * Scale > _renderSize.Height)
                     break;
@@ -80,7 +81,7 @@ namespace lineRegressionGFK.VM
             {
                 if (_renderSize.Width == 0)
                     break;
-                var max = MaxXValue.Value > -MinXValue.Value ? MaxXValue.Value : -MinXValue.Value;
+                var max = MaxXValue > -MinXValue ? MaxXValue : -MinXValue;
                 double position = i * LineWidthDelta;
                 if (i * LineWidthDelta > max && position * Scale > _renderSize.Width)
                     break;
@@ -105,7 +106,7 @@ namespace lineRegressionGFK.VM
         {
             new DataSet()
             {
-                Name = "DataSet 1"
+                Id = 1
             }
         };
 
@@ -124,6 +125,13 @@ namespace lineRegressionGFK.VM
                 MinYValue = yValue;
 
             DataSetsOfPoints[CurrentIndexOfDataSet].AddPointToPointsCollection(xValue, yValue);
+
+            LineWidthDelta = (MaxXValue - MinXValue) / 20.0;
+            LineHighDelta = (MaxYValue - MinXValue) / 20.0;
+            if(LineWidthDelta > 100)
+                LineWidthDelta = Math.Round((MaxXValue - MinXValue) / 2000.0, 0) * 100;
+            if(LineHighDelta > 100)
+                LineHighDelta = Math.Round((MaxYValue - MinYValue) / 2000.0, 0) * 100;
 
             UpdateAllChartElements();
         }
@@ -319,17 +327,17 @@ namespace lineRegressionGFK.VM
                 {
                     DataSetsOfPoints.Add(new DataSet()
                     {
-                        Name = $"DataSet {DataSetsOfPoints.Count + 1}"
+                        Id = DataSetsOfPoints.Last().Id + 1
                     });
                     CurrentIndexOfDataSet++;
                     string readFile = saveStream.ReadToEnd();
                     var fileLines = readFile.Split(new[] {"\n"}, StringSplitOptions.RemoveEmptyEntries);
                     foreach (var fileLine in fileLines)
-                    {
-                        var xy = fileLine.Split(new[] {" ", ";", "\t"},
+                    {                        
+                        var xy = fileLine.Replace(",", ".").Split(new[] {" ", ";", "\t"},
                             StringSplitOptions.RemoveEmptyEntries);
-                        double x, y;
-                        if (xy.Length == 2 && double.TryParse(xy[0], out x) && double.TryParse(xy[1], out y))
+                        double x, y;                        
+                        if (xy.Length == 2 && double.TryParse(xy[0], NumberStyles.Any, new CultureInfo("en-US"), out x) && double.TryParse(xy[1], NumberStyles.Any, new CultureInfo("en-US"), out y))
                         {
                             AddPointToPointsCollection(x, y);
                         }
@@ -359,30 +367,55 @@ namespace lineRegressionGFK.VM
             }
         });
 
-        public string ClearAllText => "Clear all datasets";
+        public string ClearAllText => "Clear all DataSets";
         private ICommand _clearAllCommand;
 
         public ICommand ClearAllCommand => _clearAllCommand ?? new RelayCommand((obj) =>
         {
+            MaxXValue = 100;
+            MaxYValue = 100;
+            MinXValue = -100;
+            MinYValue = -100;
             DataSetsOfPoints = new ObservableCollection<DataSet>()
             {
                 new DataSet()
                 {
-                    Name = "DataSet 1"
+                    Id = 1
                 }
             };
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DataSetsOfPoints)));
+            CurrentIndexOfDataSet = 0;
         });
 
-        public string ClearSingleText => "Clear current datasets";
+        public string ClearSingleText => "Clear current DataSet";
         private ICommand _clearSingleCommand;
 
         public ICommand ClearSingleCommand => _clearSingleCommand ?? new RelayCommand((obj) =>
         {
             DataSetsOfPoints[CurrentIndexOfDataSet] = new DataSet()
             {
-                Name = DataSetsOfPoints[CurrentIndexOfDataSet].Name
+                Id = DataSetsOfPoints[CurrentIndexOfDataSet].Id
             };
+
+            MaxXValue = 100;
+            MaxYValue = 100;
+            MinXValue = -100;
+            MinYValue = -100;
+
+            foreach (var dataSetsOfPoint in DataSetsOfPoints)
+            {
+                if (dataSetsOfPoint.MaxXValue > MaxXValue)
+                    MaxXValue = dataSetsOfPoint.MaxXValue;
+
+                if (dataSetsOfPoint.MinYValue < MinYValue)
+                    MinYValue = dataSetsOfPoint.MinYValue;
+
+                if (dataSetsOfPoint.MaxYValue > MaxYValue)
+                    MaxYValue = dataSetsOfPoint.MaxYValue;
+
+                if (dataSetsOfPoint.MinXValue < MinXValue)
+                    MinXValue = dataSetsOfPoint.MinXValue;
+            }
         });
 
         public string AddDataSetText => "Add new DataSet";
@@ -392,7 +425,7 @@ namespace lineRegressionGFK.VM
         {
             DataSetsOfPoints.Add(new DataSet()
             {
-                Name = $"DataSet {DataSetsOfPoints.Count + 1}"
+                Id = DataSetsOfPoints.Last().Id + 1
             });
         });
 
