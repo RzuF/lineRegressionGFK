@@ -6,13 +6,6 @@ namespace lineRegressionGFK.Models
 {
     public static class Regression
     {
-        //     Least-Squares fitting the points (x,y) to a line y : x -> a0+a1*x, returning its
-        //     best fitting parameters as [a0, a1] array, where a0 is the intercept and a1 the slope.
-        public static Tuple<double, double> Linear(double[] x, double[] y)
-        {
-            double[] result = Polynomial(x, y, 1);
-            return new Tuple<double, double>(result[0], result[1]);
-        }
         //     Calculates standard deviation for the intercept and the slope of linear regression
         //     Returns (stdDevA, stdDevB) - rather correct.
         public static Tuple<double, double> LinearStdDev(double[] x, double[] y)
@@ -22,11 +15,11 @@ namespace lineRegressionGFK.Models
             int n = x.Length;
             // If n == 2 -> stdDev doesn't exist -> ...1/(n-2)... Do you prefer NaN in the result? If so remove following line
             if (n <= 2) return new Tuple<double, double>(0, 0);
-            var line = Linear(x, y);
+            var line = Polynomial(x, y, 1);
 
             for (int i = 0; i < n; i++)
             {
-                stdDevSqY += Math.Pow(y[i] - line.Item1 - line.Item2 * x[i], 2);
+                stdDevSqY += Math.Pow(y[i] - line[0] - line[1] * x[i], 2);
                 xSqSum += x[i] * x[i];
             }
             double delta = n * xSqSum - x.Sum() * x.Sum();
@@ -60,6 +53,24 @@ namespace lineRegressionGFK.Models
             Vector<double> vectorA = matrixX.Solve(vectorY);
             return vectorA.ToArray();
         }
-        // TODO Errors 
+        //     Returns [a0, a1] -> y = a0 + a1x for orthogonally fitted line for 
+        //     set of points (x, y)
+        public static double[] Orthogonal(double[] x, double[] y)
+        {
+            int size = x.Length;
+            double avrX = x.Average();
+            double avrY = y.Average();
+            double sXX = 0, sXY = 0, sYY = 0;
+            for (int i = 0; i < size; i++)
+            {
+                sXX += Math.Pow(x[i] - avrX, 2);
+                sXY += (x[i] - avrX) * (y[i] - avrY);
+                sYY += Math.Pow(y[i] - avrY, 2);
+            }
+            sXX /= size - 1; sXY /= size - 1; sYY /= size - 1;
+            double a1 = (sYY - sXX + Math.Sqrt(Math.Pow(sYY - sXX, 2) + 4 * sXY * sXY)) / (2 * sXY);
+            double a0 = avrY - a1 * avrX;
+            return new double[2] { a0, a1 };
+        }
     }
 }
