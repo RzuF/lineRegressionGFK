@@ -136,14 +136,17 @@ namespace lineRegressionGFK.VM
         /// Helper method for updating horizontal and vertical chart lines and calculate optimum delta between lines.
         /// </summary>
 
-        void UpdateAllChartElements()
+        void UpdateAllChartElements(bool newDelta = false)
         {
-            LineWidthDelta = Math.Round((MaxXValue - MinXValue) / 200.0, 0) * 10;
-            LineHightDelta = Math.Round((MaxYValue - MinXValue) / 200.0, 0) * 10;
-            if (LineWidthDelta > 100)
-                LineWidthDelta = Math.Round((MaxXValue - MinXValue) / 2000.0, 0) * 100;
-            if (LineHightDelta > 100)
-                LineHightDelta = Math.Round((MaxYValue - MinYValue) / 2000.0, 0) * 100;
+            if (newDelta)
+            {
+                LineWidthDelta = Math.Round((MaxXValue - MinXValue) / 200.0, 0) * 10;
+                LineHightDelta = Math.Round((MaxYValue - MinXValue) / 200.0, 0) * 10;
+                if (LineWidthDelta > 100)
+                    LineWidthDelta = Math.Round((MaxXValue - MinXValue) / 2000.0, 0) * 100;
+                if (LineHightDelta > 100)
+                    LineHightDelta = Math.Round((MaxYValue - MinYValue) / 2000.0, 0) * 100;
+            }
 
             UpdateVerticalLines();
             UpdateHorizontalLines();
@@ -458,7 +461,13 @@ namespace lineRegressionGFK.VM
                         }
                     }
 
-                    UpdateAllChartElements();
+                    if (CurrentDataSet.PointsCollection.Count == 0)
+                    {
+                        DeleteDataSetCommand.Execute(null);
+                        return;
+                    }
+
+                    UpdateAllChartElements(true);
                 }
             }
         });
