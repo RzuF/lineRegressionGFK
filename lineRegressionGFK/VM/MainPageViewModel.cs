@@ -461,8 +461,8 @@ namespace lineRegressionGFK.VM
 
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
-                var renderTargetBitmap = new RenderTargetBitmap((int)MainWindow.ChartGrid.RenderSize.Width,
-                    (int)MainWindow.ChartGrid.RenderSize.Height, 96d, 85d, PixelFormats.Pbgra32);
+                var renderTargetBitmap = new RenderTargetBitmap((int) MainWindow.ChartGrid.ActualWidth,
+                    (int) MainWindow.ChartGrid.ActualHeight, 96, 96, PixelFormats.Default);
                 renderTargetBitmap.Render(MainWindow.ChartGrid);
                 using (var saveStream = saveFileDialog.OpenFile())
                 {
@@ -484,7 +484,7 @@ namespace lineRegressionGFK.VM
         public ICommand CopyToClipboardCommand => _copyToClipboardCommand ?? new RelayCommand((obj) =>
         {          
             var renderTargetBitmap = new RenderTargetBitmap((int) MainWindow.ChartGrid.ActualWidth,
-                (int) MainWindow.ChartGrid.ActualHeight, 96d, 85d, PixelFormats.Pbgra32);
+                (int) MainWindow.ChartGrid.ActualHeight, 96, 96, PixelFormats.Default);
             renderTargetBitmap.Render(MainWindow.ChartGrid);
             Clipboard.SetImage(renderTargetBitmap);
         });

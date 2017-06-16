@@ -415,6 +415,9 @@ namespace lineRegressionGFK.Models
         /// <param name="yValue">Y coordinate of Point</param>
         public void AddPointToPointsCollection(double xValue, double yValue)
         {
+            if(PointsCollection.FirstOrDefault(x => x.X == xValue) != null)
+                return;
+
             if (xValue > MaxXValue)
                 MaxXValue = xValue;
 
