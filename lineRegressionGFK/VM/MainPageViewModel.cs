@@ -151,6 +151,19 @@ namespace lineRegressionGFK.VM
 
         #endregion
 
+        #region Window Properties
+
+        /// <summary>
+        /// Property holds information about MainWindow Title
+        /// </summary>
+        public string Title => "Projekt 10 - Regresja liniowa - Błahut, Górski, Gałat";
+        /// <summary>
+        /// Property holds information about MainWindow minimum Height and Width
+        /// </summary>
+        public int MinSize => 630;
+
+        #endregion
+
         #region Chart Properties    
 
         /// <summary>
@@ -310,9 +323,9 @@ namespace lineRegressionGFK.VM
         /// Property holds text to display in Label
         /// </summary>
         public string ScaleLabelText { get; } = "Scale";
-        private double _scale = 3;
+        private double _scale = 4;
         /// <summary>
-        /// Property holds information about currenty used scale. Changing fire also UpdateAllChartElements() method.
+        /// Property holds information about currenty used scale. Changing fire also UpdateAllChartElements() method. Default 4
         /// </summary>
         public double Scale
         {

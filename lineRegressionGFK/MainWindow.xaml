@@ -9,8 +9,8 @@
         xmlns:helpers="clr-namespace:lineRegressionGFK.Helpers"
         xmlns:converter="clr-namespace:lineRegressionGFK.Converters"
         mc:Ignorable="d"
-        Title="MainWindow"
-        x:Name="MainWindowControl" MinHeight="630" MinWidth="630">
+        Title="{Binding Title}"
+        x:Name="MainWindowControl" MinHeight="{Binding MinSize}" MinWidth="{Binding MinSize}">
     <Window.Resources>
         <vm:MainPageViewModel x:Key="MainPageViewModel"/>
         <converter:Int32ToStringConverter x:Key="StringToInt32Converter"></converter:Int32ToStringConverter>
@@ -109,7 +109,7 @@
             </Grid.RowDefinitions>
 
             <Grid Margin="10">
-                <Grid x:Name="ChartGrid" ClipToBounds="True" MouseLeftButtonDown="ChartGrid_OnMouseLeftButtonDown" MouseLeftButtonUp="ChartGrid_OnMouseLeftButtonUp" MouseLeave="ChartGrid_OnMouseLeave" MouseMove="ChartGrid_OnMouseMove" Background="{Binding BackgroundBrush}">
+                <Grid x:Name="ChartGrid" ClipToBounds="True" MouseLeftButtonDown="ChartGrid_OnMouseLeftButtonDown" MouseLeftButtonUp="ChartGrid_OnMouseLeftButtonUp" MouseLeave="ChartGrid_OnMouseLeave" MouseMove="ChartGrid_OnMouseMove" MouseWheel="ChartGrid_OnMouseWheel" Background="{Binding BackgroundBrush}">
                     <Grid Grid.Row="0" x:Name="ChartGridContainer" RenderTransformOrigin="0.5,0.5">
                         <ItemsControl ItemsSource="{Binding Path=HorizontalLinesCollection}">
                             <ItemsControl.ItemsPanel>

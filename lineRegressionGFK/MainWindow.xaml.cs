@@ -151,5 +151,18 @@ namespace lineRegressionGFK
         {
             _canManipulateChart = false;
         }
+
+        /// <summary>
+        /// Code-behind event method. Fired if mouse wheel was used. Changes the scale of chart by twice or by half depends on direction of Delta parameter.
+        /// </summary>
+        /// <param name="sender">Object that send this event</param>
+        /// <param name="e">Holds crucial Delta parameter</param>
+        private void ChartGrid_OnMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (e.Delta > 0)
+                (Resources["MainPageViewModel"] as MainPageViewModel).Scale *= 2;
+            else
+                (Resources["MainPageViewModel"] as MainPageViewModel).Scale /= 2;
+        }
     }
 }
