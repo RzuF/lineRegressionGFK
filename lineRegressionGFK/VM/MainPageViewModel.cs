@@ -416,7 +416,12 @@ namespace lineRegressionGFK.VM
         /// </summary>
         public ICommand FromFileCommand => _fromFileCommand ?? new RelayCommand((obj) =>
         {
-            var saveFileDialog = new OpenFileDialog() { RestoreDirectory = true };
+            var saveFileDialog = new OpenFileDialog()
+            {
+                RestoreDirectory = true,
+                Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*",
+                FilterIndex = 1
+            };
 
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
@@ -455,7 +460,12 @@ namespace lineRegressionGFK.VM
         /// </summary>
         public ICommand SaveAsCommand => _saveAsCommand ?? new RelayCommand((obj) =>
         {
-            var saveFileDialog = new System.Windows.Forms.SaveFileDialog() { RestoreDirectory = true };
+            var saveFileDialog = new SaveFileDialog
+            {
+                RestoreDirectory = true,
+                Filter = "png files (*.png)|*.png|All files (*.*)|*.*",
+                FilterIndex = 1
+            };
 
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
