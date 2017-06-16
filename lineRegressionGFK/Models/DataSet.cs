@@ -438,10 +438,10 @@ namespace lineRegressionGFK.Models
 
             if (PointsCollection.Count > 1)
             {
-                var regressionCoefficients = Regression.Polynomial(PointsCollection.Select(x => x.X).ToArray(), PointsCollection.Select(x => x.Y).ToArray(), 1);
-                var regressionStd = Regression.LinearStdDev(PointsCollection.Select(x => x.X).ToArray(), PointsCollection.Select(x => x.Y).ToArray());
+                var regressionCoefficients = RegressionHelper.Polynomial(PointsCollection.Select(x => x.X).ToArray(), PointsCollection.Select(x => x.Y).ToArray(), 1);
+                var regressionStd = RegressionHelper.LinearStdDev(PointsCollection.Select(x => x.X).ToArray(), PointsCollection.Select(x => x.Y).ToArray());
 
-                var regressionOrthogonal = Regression.Orthogonal(PointsCollection.Select(x => x.X).ToArray(), PointsCollection.Select(x => x.Y).ToArray());
+                var regressionOrthogonal = RegressionHelper.Orthogonal(PointsCollection.Select(x => x.X).ToArray(), PointsCollection.Select(x => x.Y).ToArray());
 
                 RegressionLinear = new LinearRegression()
                 {
@@ -471,7 +471,7 @@ namespace lineRegressionGFK.Models
             if (PointsCollection.Count < PolynomialCoefficient + 1)
                 return;
 
-            var polynomialRegressionCoefficients = Regression.Polynomial(PointsCollection.Select(x => x.X).ToArray(), PointsCollection.Select(x => x.Y).ToArray(), PolynomialCoefficient);
+            var polynomialRegressionCoefficients = RegressionHelper.Polynomial(PointsCollection.Select(x => x.X).ToArray(), PointsCollection.Select(x => x.Y).ToArray(), PolynomialCoefficient);
             RegressionPolynomial = new PolynomialRegression()
             {
                 Coefficients = polynomialRegressionCoefficients,

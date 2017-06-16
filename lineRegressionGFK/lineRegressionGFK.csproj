@@ -114,7 +114,7 @@
     <Compile Include="Models\LinearRegression.cs" />
     <Compile Include="Models\OrthogonalRegression.cs" />
     <Compile Include="Models\PolynomialRegression.cs" />
-    <Compile Include="Models\Regression.cs" />
+    <Compile Include="Helpers\RegressionHelper.cs" />
     <Compile Include="Models\RelayCommand.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="VM\MainPageViewModel.cs" />

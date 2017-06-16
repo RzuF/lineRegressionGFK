@@ -2,18 +2,25 @@
 using System.Linq;
 using MathNet.Numerics.LinearAlgebra;
 
-namespace lineRegressionGFK.Models
+namespace lineRegressionGFK.Helpers
 {
-    public static class Regression
-    {
-        //     Calculates standard deviation for the intercept and the slope of linear regression
-        //     Returns (stdDevA, stdDevB) - rather correct.
+    /// <summary>
+    /// Helper method for calculating regression coefficients and standard deviation for linear regression
+    /// </summary>
+    public static class RegressionHelper
+    {       
+        /// <summary>
+        /// Calculates standard deviation for the intercept and the slope of linear regression
+        /// </summary>
+        /// <param name="x">Array of X set</param>
+        /// <param name="y">Array of Y set</param>
+        /// <returns>Tuple conatining (stdDevA, stdDevB)</returns>
         public static Tuple<double, double> LinearStdDev(double[] x, double[] y)
         {
             double stdDevSqA = 0, stdDevSqB = 0;
             double stdDevSqY = 0, xSqSum = 0;
             int n = x.Length;
-            // If n == 2 -> stdDev doesn't exist -> ...1/(n-2)... Do you prefer NaN in the result? If so remove following line
+
             if (n <= 2) return new Tuple<double, double>(0, 0);
             var line = Polynomial(x, y, 1);
 
@@ -27,8 +34,14 @@ namespace lineRegressionGFK.Models
             stdDevSqB = stdDevSqA * (xSqSum / n);
             return new Tuple<double, double>(Math.Sqrt(stdDevSqA), Math.Sqrt(stdDevSqB));
         }
-        //     Least-Squares fitting the points (x,y) to a curve y : x -> a0+a1*x+a2*x^2+a3*x^3+...+abaseDegree*x^baseDegree, returning its
-        //     best fitting parameters as [a0, a1, a2, ..., abaseDegree] array 'baseDegree + 1' sized.
+
+        /// <summary>
+        /// Least-Squares fitting the points (x,y) to a curve y : x -> a0+a1*x+a2*x^2+a3*x^3+...+abaseDegree*x^baseDegree
+        /// </summary>
+        /// <param name="x">Array of X set</param>
+        /// <param name="y">Array of Y set</param>
+        /// <param name="baseDegree">Specified degree of polynomial</param>
+        /// <returns>Best fitting parameters as [a0, a1, a2, ..., abaseDegree] array 'baseDegree + 1' sized</returns>
         public static double[] Polynomial(double[] x, double[] y, int baseDegree)
         {
             int size = x.Length;
@@ -53,8 +66,13 @@ namespace lineRegressionGFK.Models
             Vector<double> vectorA = matrixX.Solve(vectorY);
             return vectorA.ToArray();
         }
-        //     Returns [a0, a1] -> y = a0 + a1x for orthogonally fitted line for 
-        //     set of points (x, y)
+
+        /// <summary>
+        /// Calculates coefficients for orthogonal regression
+        /// </summary>
+        /// <param name="x">Array of X set</param>
+        /// <param name="y">Array of Y set</param>
+        /// <returns>Orthogonal coefficients as arary: [a0, a1] -> y = a0 + a1x</returns>
         public static double[] Orthogonal(double[] x, double[] y)
         {
             int size = x.Length;
