@@ -140,8 +140,8 @@ namespace lineRegressionGFK.VM
 
         void UpdateAllChartElements()
         {
-            LineWidthDelta = (MaxXValue - MinXValue) / 20.0;
-            LineHightDelta = (MaxYValue - MinXValue) / 20.0;
+            LineWidthDelta = Math.Round((MaxXValue - MinXValue) / 200.0, 0) * 10;
+            LineHightDelta = Math.Round((MaxYValue - MinXValue) / 200.0, 0) * 10;
             if (LineWidthDelta > 100)
                 LineWidthDelta = Math.Round((MaxXValue - MinXValue) / 2000.0, 0) * 100;
             if (LineHightDelta > 100)
