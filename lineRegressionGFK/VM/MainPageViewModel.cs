@@ -87,7 +87,7 @@ namespace lineRegressionGFK.VM
             DataSetsOfPoints[CurrentIndexOfDataSet].AddPointToPointsCollection(xValue, yValue);            
 
             if(!notUpdate)
-                UpdateAllChartElements();
+                UpdateAllChartElements(true);
         }
 
         /// <summary>
@@ -135,7 +135,7 @@ namespace lineRegressionGFK.VM
         /// <summary>
         /// Helper method for updating horizontal and vertical chart lines and calculate optimum delta between lines.
         /// </summary>
-
+        /// <param name="newDelta">If false, no new parameters for delta are calculated. Default false</param>
         void UpdateAllChartElements(bool newDelta = false)
         {
             if (newDelta)
