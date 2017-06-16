@@ -11,8 +11,8 @@
         xmlns:models="clr-namespace:lineRegressionGFK.Models"
         xmlns:converter="clr-namespace:lineRegressionGFK.Converters"
         mc:Ignorable="d"
-        Title="MainWindow" Height="668.203" Width="964.19"
-        x:Name="MainWindowControl">
+        Title="MainWindow"
+        x:Name="MainWindowControl" MinHeight="630" MinWidth="630">
     <Window.Resources>
         <vm:MainPageViewModel x:Key="MainPageViewModel"/>
         <converter:StringToInt32Converter x:Key="StringToInt32Converter"></converter:StringToInt32Converter>
@@ -37,20 +37,33 @@
             <ColumnDefinition Width="8*"/>
         </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Column="0">
-            <DockPanel Margin="6">
+        <Grid x:Name="MenuStackPanel"  Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+            </Grid.RowDefinitions>
+            <DockPanel Grid.Row="0" Margin="6">
                 <Label Content="{Binding XLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
                 <TextBox Text="{Binding CurrentXValue, Mode=TwoWay, Converter={StaticResource StringToDoubleConverter}}" VerticalAlignment="Center"/>
             </DockPanel>
-            <DockPanel Margin="6">
+            <DockPanel Grid.Row="1" Margin="6">
                 <Label Content="{Binding YLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
                 <TextBox Text="{Binding CurrentYValue, Mode=TwoWay, Converter={StaticResource StringToDoubleConverter}}" VerticalAlignment="Center"/>
             </DockPanel>
-            <Button Content="{Binding AddButtonText}" Command="{Binding AddButtonCommand}" Margin="6"></Button>
-            <Button Content="{Binding FromFileText}" Command="{Binding FromFileCommand}" Margin="6"></Button>
-            <Button Content="{Binding SaveAsText}" Command="{Binding SaveAsCommand}" Margin="6"></Button>
-            <Button Content="{Binding PrintText}" Command="{Binding PrintCommand}" Margin="6"></Button>
-            <TabControl x:Name="ListOfPointsTab"  ItemsSource="{Binding DataSetsOfPoints}" SelectedIndex="{Binding CurrentIndexOfDataSet}">
+            <Button Grid.Row="2" Content="{Binding AddButtonText}" Command="{Binding AddButtonCommand}" Margin="6"></Button>
+            <Button Grid.Row="3" Content="{Binding FromFileText}" Command="{Binding FromFileCommand}" Margin="6"></Button>
+            <Button Grid.Row="4" Content="{Binding SaveAsText}" Command="{Binding SaveAsCommand}" Margin="6"></Button>
+            <Button Grid.Row="5" Content="{Binding PrintText}" Command="{Binding PrintCommand}" Margin="6"></Button>
+            <TabControl  Grid.Row="6" x:Name="ListOfPointsTab"  ItemsSource="{Binding DataSetsOfPoints}" SelectedIndex="{Binding CurrentIndexOfDataSet}" VerticalAlignment="Top">
                 <TabControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <Canvas Background="Transparent">
@@ -64,33 +77,35 @@
                 </TabControl.ItemTemplate>
                 <TabControl.ContentTemplate>
                     <DataTemplate>
-                        <ListView ItemsSource="{Binding PointsCollection}" Margin="6">
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <Label>
-                                        <Label.Content>
-                                            <MultiBinding Converter="{StaticResource PositionToStringMultiConverter}">
-                                                <Binding Path="X"></Binding>
-                                                <Binding Path="Y"></Binding>
-                                            </MultiBinding>
-                                        </Label.Content>
-                                    </Label>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
+                        <ScrollViewer VerticalAlignment="Top">
+                            <ListView ItemsSource="{Binding PointsCollection}" Margin="6">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Label>
+                                            <Label.Content>
+                                                <MultiBinding Converter="{StaticResource PositionToStringMultiConverter}">
+                                                    <Binding Path="X"></Binding>
+                                                    <Binding Path="Y"></Binding>
+                                                </MultiBinding>
+                                            </Label.Content>
+                                        </Label>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </ScrollViewer>
                     </DataTemplate>
                 </TabControl.ContentTemplate>
             </TabControl>
-            <Button Content="{Binding ClearSingleText}" Command="{Binding ClearSingleCommand}" Margin="6"></Button>
-            <Button Content="{Binding ClearAllText}" Command="{Binding ClearAllCommand}" Margin="6"></Button>
-            <Button Content="{Binding AddDataSetText}" Command="{Binding AddDataSetCommand}" Margin="6"></Button>
-            <Button Content="{Binding DeleteDataSetText}" Command="{Binding DeleteDataSetCommand}" Margin="6"></Button>
-        </StackPanel>
+            <Button Grid.Row="7" Content="{Binding ClearSingleText}" Command="{Binding ClearSingleCommand}" Margin="6"></Button>
+            <Button Grid.Row="8" Content="{Binding ClearAllText}" Command="{Binding ClearAllCommand}" Margin="6"></Button>
+            <Button Grid.Row="9" Content="{Binding AddDataSetText}" Command="{Binding AddDataSetCommand}" Margin="6"></Button>
+            <Button Grid.Row="10" Content="{Binding DeleteDataSetText}" Command="{Binding DeleteDataSetCommand}" Margin="6"></Button>
+        </Grid>
 
-        <Grid Grid.Column="1" x:Name="ChartCanvas" Background="Orange">
+        <Grid Grid.Column="1" x:Name="ChartCanvas">
             <Grid.RowDefinitions>
-                <RowDefinition Height="7*"></RowDefinition>
-                <RowDefinition Height="3*"></RowDefinition>
+                <RowDefinition Height="6*"></RowDefinition>
+                <RowDefinition Height="4*"></RowDefinition>
             </Grid.RowDefinitions>
 
             <Grid x:Name="ChartGrid" ClipToBounds="True" Margin="10" MouseLeftButtonDown="ChartGrid_OnMouseLeftButtonDown" MouseLeftButtonUp="ChartGrid_OnMouseLeftButtonUp" MouseLeave="ChartGrid_OnMouseLeave" MouseMove="ChartGrid_OnMouseMove" Background="{Binding BackgroundBrush}">
@@ -428,7 +443,7 @@
                     </TabControl.ItemTemplate>
                     <TabControl.ContentTemplate>
                         <DataTemplate>
-                            <StackPanel>
+                            <StackPanel CanHorizontallyScroll="True" ScrollViewer.HorizontalScrollBarVisibility="Auto">
                                 <StackPanel Orientation="Horizontal" Margin="6">
                                     <RadioButton Content="{Binding EllipseTypePointLabelText}" IsChecked="{Binding EllipseTypePoint}"></RadioButton>
                                     <RadioButton Content="{Binding RectangleTypePointLabelText}" IsChecked="{Binding RectangleTypePoint}"></RadioButton>
