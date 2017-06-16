@@ -26,8 +26,7 @@ using OpenFileDialog = System.Windows.Forms.OpenFileDialog;
 namespace lineRegressionGFK.VM
 {
     public class MainPageViewModel : INotifyPropertyChanged
-    {
-        public static MainPageViewModel Instance { get; private set; }
+    {        
         public static bool ManipulationStarted { get; set; } = false;
         private Size _renderSize;
 
@@ -94,8 +93,6 @@ namespace lineRegressionGFK.VM
 
         void UpdateAllChartElements()
         {
-            //UpdateChartPoints();
-            // TODO
             UpdateVerticalLines();
             UpdateHorizontalLines();
         }
@@ -108,7 +105,7 @@ namespace lineRegressionGFK.VM
         {
             new DataSet()
             {
-
+                Name = "DataSet 1"
             }
         };
 
@@ -255,10 +252,15 @@ namespace lineRegressionGFK.VM
             get { return _currentIndexOfDataset; }
             set
             {
-                _currentIndexOfDataset = value;
+                _currentIndexOfDataset = value;                
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentIndexOfDataSet)));
+                if(value != -1)
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentDataSet)));
             }
         }
+
+        public DataSet CurrentDataSet => DataSetsOfPoints[_currentIndexOfDataset];
+
 
 
         #endregion
@@ -266,9 +268,9 @@ namespace lineRegressionGFK.VM
         #region Menu Properties
 
         public string XLabelText { get; } = "X: ";
-                public string YLabelText { get; } = "Y: ";
+        public string YLabelText { get; } = "Y: ";
 
-                private double _currentXValue;
+        private double _currentXValue;
 
         public double CurrentXValue
         {
@@ -294,128 +296,164 @@ namespace lineRegressionGFK.VM
 
         #region Button Properties
 
-                    public string AddButtonText => "Add";
-                    private ICommand _addButtonCommand;
+        public string AddButtonText => "Add";
+        private ICommand _addButtonCommand;
 
-                    public ICommand AddButtonCommand => _addButtonCommand ?? new RelayCommand((object obj) =>
+        public ICommand AddButtonCommand => _addButtonCommand ?? new RelayCommand((object obj) =>
+        {
+            AddPointToPointsCollection(CurrentXValue, CurrentYValue);
+
+            CurrentXValue = CurrentYValue = 0;
+        });
+
+        public string FromFileText => "From file...";
+        private ICommand _fromFileCommand;
+
+        public ICommand FromFileCommand => _fromFileCommand ?? new RelayCommand((obj) =>
+        {
+            var saveFileDialog = new OpenFileDialog() {RestoreDirectory = true};
+
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                using (var saveStream = new StreamReader(saveFileDialog.OpenFile()))
+                {
+                    DataSetsOfPoints.Add(new DataSet()
                     {
-                        AddPointToPointsCollection(CurrentXValue, CurrentYValue);
-
-                        CurrentXValue = CurrentYValue = 0;                        
+                        Name = $"DataSet {DataSetsOfPoints.Count + 1}"
                     });
-
-                    public string FromFileText => "From file...";
-                    private ICommand _fromFileCommand;
-
-                    public ICommand FromFileCommand => _fromFileCommand ?? new RelayCommand((obj) =>
+                    CurrentIndexOfDataSet++;
+                    string readFile = saveStream.ReadToEnd();
+                    var fileLines = readFile.Split(new[] {"\n"}, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (var fileLine in fileLines)
                     {
-                        var saveFileDialog = new OpenFileDialog() { RestoreDirectory = true };
-
-                        if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                        var xy = fileLine.Split(new[] {" ", ";", "\t"},
+                            StringSplitOptions.RemoveEmptyEntries);
+                        double x, y;
+                        if (xy.Length == 2 && double.TryParse(xy[0], out x) && double.TryParse(xy[1], out y))
                         {
-                            using (var saveStream = new StreamReader(saveFileDialog.OpenFile()))
-                            {
-                                //PointsCollection.Clear();
-                                DataSetsOfPoints.Add(new DataSet());
-                                CurrentIndexOfDataSet++;
-                                string readFile = saveStream.ReadToEnd();
-                                var fileLines = readFile.Split(new[] {"\n"}, StringSplitOptions.RemoveEmptyEntries);
-                                foreach (var fileLine in fileLines)
-                                {
-                                    var xy = fileLine.Split(new[] {" ", ";", "\t"},
-                                        StringSplitOptions.RemoveEmptyEntries);
-                                    double x, y;
-                                    if (xy.Length == 2 && double.TryParse(xy[0], out x) && double.TryParse(xy[1], out y))
-                                    {
-                                        AddPointToPointsCollection(x,y);
-                                    }
-                                }
-                            }
+                            AddPointToPointsCollection(x, y);
                         }
-                    });
+                    }
+                }
+            }
+        });
 
-                    public string SaveAsText => "Save chart as...";
-                    private ICommand _saveAsCommand;            
+        public string SaveAsText => "Save chart as...";
+        private ICommand _saveAsCommand;
 
-                    public ICommand SaveAsCommand => _saveAsCommand ?? new RelayCommand((obj) =>
-                        {                
-                            var saveFileDialog = new System.Windows.Forms.SaveFileDialog() {RestoreDirectory = true};
+        public ICommand SaveAsCommand => _saveAsCommand ?? new RelayCommand((obj) =>
+        {
+            var saveFileDialog = new System.Windows.Forms.SaveFileDialog() {RestoreDirectory = true};
 
-                            if (saveFileDialog.ShowDialog() == DialogResult.OK)
-                            {                    
-                                var renderTargetBitmap = new RenderTargetBitmap((int)MainWindow.ChartGrid.RenderSize.Width, (int)MainWindow.ChartGrid.RenderSize.Height, 96d, 85d, PixelFormats.Pbgra32);
-                                renderTargetBitmap.Render(MainWindow.ChartGrid);
-                                using (var saveStream = saveFileDialog.OpenFile())
-                                {
-                                    var encoder = new PngBitmapEncoder();
-                                    encoder.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
-                                    encoder.Save(saveStream);
-                                }
-                            }
-                        });
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                var renderTargetBitmap = new RenderTargetBitmap((int) MainWindow.ChartGrid.RenderSize.Width,
+                    (int) MainWindow.ChartGrid.RenderSize.Height, 96d, 85d, PixelFormats.Pbgra32);
+                renderTargetBitmap.Render(MainWindow.ChartGrid);
+                using (var saveStream = saveFileDialog.OpenFile())
+                {
+                    var encoder = new PngBitmapEncoder();
+                    encoder.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
+                    encoder.Save(saveStream);
+                }
+            }
+        });
 
-                    public string ClearText => "Clear chart of points";
-                    private ICommand _clearCommand;
+        public string ClearAllText => "Clear all datasets";
+        private ICommand _clearAllCommand;
 
-                    public ICommand ClearCommand => _clearCommand ?? new RelayCommand((obj) =>
-                    {
-                        DataSetsOfPoints.Clear();
-                        DataSetsOfPoints.Add(new DataSet()
-                        {
-                            
-                        });
-                    });
+        public ICommand ClearAllCommand => _clearAllCommand ?? new RelayCommand((obj) =>
+        {
+            DataSetsOfPoints = new ObservableCollection<DataSet>()
+            {
+                new DataSet()
+                {
+                    Name = "DataSet 1"
+                }
+            };
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DataSetsOfPoints)));
+        });
 
-                    private ICommand _sizeChangedCommand;
+        public string ClearSingleText => "Clear current datasets";
+        private ICommand _clearSingleCommand;
 
-                    public ICommand SizeChangedCommand => _sizeChangedCommand ?? new RelayCommand((obj) =>
-                    {
-                        RenderSize = (Size) obj;
-                    });
+        public ICommand ClearSingleCommand => _clearSingleCommand ?? new RelayCommand((obj) =>
+        {
+            DataSetsOfPoints[CurrentIndexOfDataSet] = new DataSet()
+            {
+                Name = DataSetsOfPoints[CurrentIndexOfDataSet].Name
+            };
+        });
 
-                    private ICommand _radioChangedCommand;
+        public string AddDataSetText => "Add new DataSet";
+        private ICommand _addDataSetCommand;
 
-                    public ICommand RadioChangedCommand => _radioChangedCommand ?? new RelayCommand((obj) =>
-                    {
-            
-                    });
+        public ICommand AddDataSetCommand => _addDataSetCommand ?? new RelayCommand((obj) =>
+        {
+            DataSetsOfPoints.Add(new DataSet()
+            {
+                Name = $"DataSet {DataSetsOfPoints.Count + 1}"
+            });
+        });
 
-                    public string PrintText  => "Print Chart";
-                    private ICommand _printCommand;
+        public string DeleteDataSetText => "Delete current DataSet";
+        private ICommand _deleteDataSetCommand;
 
-                    public ICommand PrintCommand => _printCommand ?? new RelayCommand((obj) =>
-                    {
-                        var printDialog = new System.Windows.Controls.PrintDialog();
-                        if (printDialog.ShowDialog() == true)
-                        {
-                            printDialog.PrintVisual(MainWindow.ChartGrid, "Chart");
-                        }
-                    });
+        public ICommand DeleteDataSetCommand => _deleteDataSetCommand ?? new RelayCommand((obj) =>
+        {
+            if (DataSetsOfPoints.Count > 1)
+                DataSetsOfPoints.RemoveAt(CurrentIndexOfDataSet);
+            else
+            {
+                System.Windows.MessageBox.Show(MainWindow, "Cannot delete all datasets", "Error", MessageBoxButton.OK);
+            }
+        });
+
+        private ICommand _sizeChangedCommand;
+
+        public ICommand SizeChangedCommand => _sizeChangedCommand ?? new RelayCommand((obj) =>
+        {
+            RenderSize = (Size) obj;
+        });
+
+        private ICommand _radioChangedCommand;
+
+        public ICommand RadioChangedCommand => _radioChangedCommand ?? new RelayCommand((obj) =>
+        {
+
+        });
+
+        public string PrintText => "Print Chart";
+        private ICommand _printCommand;
+
+        public ICommand PrintCommand => _printCommand ?? new RelayCommand((obj) =>
+        {
+            var printDialog = new System.Windows.Controls.PrintDialog();
+            if (printDialog.ShowDialog() == true)
+            {
+                printDialog.PrintVisual(MainWindow.ChartGrid, "Chart");
+            }
+        });
 
 
-                    public string ToCenterText { get; } = "Center chart";
-                    private ICommand _toCenterCommand;
-                    public ICommand ToCenterCommand => _toCenterCommand ?? new RelayCommand((obj) =>
-                    {
-                        TransformGroup transformGroup = new TransformGroup();
-                        TranslateTransform translateTransform = new TranslateTransform(_renderSize.Width/2, _renderSize.Height/2);
+        public string ToCenterText { get; } = "Center chart";
+        private ICommand _toCenterCommand;
 
-                        transformGroup.Children.Add(translateTransform);
+        public ICommand ToCenterCommand => _toCenterCommand ?? new RelayCommand((obj) =>
+        {
+            TransformGroup transformGroup = new TransformGroup();
+            TranslateTransform translateTransform = new TranslateTransform(_renderSize.Width / 2, _renderSize.Height / 2);
 
-                        (obj as Grid).RenderTransform = transformGroup;
+            transformGroup.Children.Add(translateTransform);
 
-                        Scale = Scale;
-                    });
+            (obj as Grid).RenderTransform = transformGroup;
+
+            Scale = Scale;
+        });
 
         #endregion
 
-        public MainPageViewModel()
-                {
-                    if (Instance == null)
-                        Instance = this;
-                }
-
-                #endregion
+        #endregion
 
         #region Public Methods
 

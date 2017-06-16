@@ -63,6 +63,9 @@ namespace lineRegressionGFK.Models
         #endregion
 
         #region Point Types
+
+        private bool _isChangePending = false;
+
         public string EllipseTypePointLabelText { get; } = "Ellipse";
         private bool _ellipseTypePoint = true;
 
@@ -71,6 +74,16 @@ namespace lineRegressionGFK.Models
             get { return _ellipseTypePoint; }
             set
             {
+                if (_isChangePending)
+                {
+                    _isChangePending = false;
+                    return;
+                }
+                if (value == false && _ellipseTypePoint == false && _rectangleTypePoint == false)
+                {
+                    _isChangePending = true;
+                    return;
+                }
                 _ellipseTypePoint = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(EllipseTypePoint)));
             }
@@ -84,6 +97,16 @@ namespace lineRegressionGFK.Models
             get { return _rectangleTypePoint; }
             set
             {
+                if (_isChangePending)
+                {
+                    _isChangePending = false;
+                    return;
+                }
+                if (value == false && _ellipseTypePoint == false && _diamondTypePoint == false)
+                {
+                    _isChangePending = true;
+                    return;
+                }
                 _rectangleTypePoint = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RectangleTypePoint)));
             }
@@ -97,6 +120,16 @@ namespace lineRegressionGFK.Models
             get { return _diamondTypePoint; }
             set
             {
+                if(_isChangePending)
+                {
+                    _isChangePending = false;
+                    return;
+                }
+                if (value == false && _ellipseTypePoint == false && _rectangleTypePoint == false)
+                {
+                    _isChangePending = true;
+                    return;
+                }
                 _diamondTypePoint = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DiamondTypePoint)));
             }
@@ -159,6 +192,16 @@ namespace lineRegressionGFK.Models
             }
             set
             {
+                if (_isChangePending)
+                {
+                    _isChangePending = false;
+                    return;
+                }
+                if (value == false && _polynomialRegressionType == false)
+                {
+                    _isChangePending = true;
+                    return;
+                }
                 _linearRegressionType = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LinearRegressionType)));
             }
@@ -174,6 +217,16 @@ namespace lineRegressionGFK.Models
             }
             set
             {
+                if (_isChangePending)
+                {
+                    _isChangePending = false;
+                    return;
+                }
+                if (value == false && _linearRegressionType == false)
+                {
+                    _isChangePending = true;
+                    return;
+                }
                 _polynomialRegressionType = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PolynomialRegressionType)));
             }
@@ -277,6 +330,12 @@ namespace lineRegressionGFK.Models
                 GraphicRepresentation = PolynomialLineCreatorHelper.Create(polynomialRegressionCoefficients, MinXValue, MaxXValue, Step)
             };
         }
+
+        #endregion
+
+        #region Indetification Properties
+
+        public string Name { get; set; }
 
         #endregion
 

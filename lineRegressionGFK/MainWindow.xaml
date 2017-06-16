@@ -49,7 +49,6 @@
             <Button Content="{Binding AddButtonText}" Command="{Binding AddButtonCommand}" Margin="6"></Button>
             <Button Content="{Binding FromFileText}" Command="{Binding FromFileCommand}" Margin="6"></Button>
             <Button Content="{Binding SaveAsText}" Command="{Binding SaveAsCommand}" Margin="6"></Button>
-            <Button Content="{Binding ClearText}" Command="{Binding ClearCommand}" Margin="6"></Button>
             <Button Content="{Binding PrintText}" Command="{Binding PrintCommand}" Margin="6"></Button>
             <TabControl x:Name="ListOfPointsTab"  ItemsSource="{Binding DataSetsOfPoints}" SelectedIndex="{Binding CurrentIndexOfDataSet}">
                 <TabControl.ItemsPanel>
@@ -59,9 +58,8 @@
                     </ItemsPanelTemplate>
                 </TabControl.ItemsPanel>
                 <TabControl.ItemTemplate>
-                    <!-- this is the header template-->
                     <DataTemplate>
-                        <TextBlock Text="{Binding SelectedIndex, ElementName=ListOfPointsTab}"></TextBlock>
+                        <TextBlock Text="{Binding Name}"></TextBlock>
                     </DataTemplate>
                 </TabControl.ItemTemplate>
                 <TabControl.ContentTemplate>
@@ -83,7 +81,10 @@
                     </DataTemplate>
                 </TabControl.ContentTemplate>
             </TabControl>
-            
+            <Button Content="{Binding ClearSingleText}" Command="{Binding ClearSingleCommand}" Margin="6"></Button>
+            <Button Content="{Binding ClearAllText}" Command="{Binding ClearAllCommand}" Margin="6"></Button>
+            <Button Content="{Binding AddDataSetText}" Command="{Binding AddDataSetCommand}" Margin="6"></Button>
+            <Button Content="{Binding DeleteDataSetText}" Command="{Binding DeleteDataSetCommand}" Margin="6"></Button>
         </StackPanel>
 
         <Grid Grid.Column="1" x:Name="ChartCanvas" Background="Orange">
@@ -364,26 +365,25 @@
                                             </Style>
                                         </ItemsControl.ItemContainerStyle>
                                     </ItemsControl>
-
-                                    <TextBlock x:Name="InfoFrameLabel"  MouseEnter="InfoFrame_OnMouseEnter" MouseLeave="InfoFrame_OnMouseLeave" Visibility="Hidden"
-                                    HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10" Padding="5" Background="{Binding PointBrush}" Foreground="{Binding BackgroundBrush, Source={StaticResource MainPageViewModel}}" TextWrapping="Wrap">
-                                        <TextBlock.RenderTransform>
-                                            <TransformGroup>
-                                            </TransformGroup>
-                                        </TextBlock.RenderTransform>
-                                        <TextBlock.Text>
-                                            <MultiBinding Mode="OneWay" Converter="{StaticResource InfoStringByBoolConverter}">
-                                                <Binding Path="RegressionLinear.InfoString"></Binding>
-                                                <Binding Path="RegressionPolynomial.InfoString"></Binding>
-                                                <Binding Path="LinearRegressionType"></Binding>
-                                            </MultiBinding>
-                                        </TextBlock.Text>
-                                    </TextBlock>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </Grid>
+                <TextBlock x:Name="InfoFrameLabel"  MouseEnter="InfoFrame_OnMouseEnter" MouseLeave="InfoFrame_OnMouseLeave"
+                                    HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10" Padding="5" Background="{Binding LineBrush}" Foreground="{Binding BackgroundBrush, Source={StaticResource MainPageViewModel}}" TextWrapping="Wrap">
+                    <TextBlock.RenderTransform>
+                        <TransformGroup>
+                        </TransformGroup>
+                    </TextBlock.RenderTransform>
+                    <TextBlock.Text>
+                        <MultiBinding Mode="OneWay" Converter="{StaticResource InfoStringByBoolConverter}">
+                            <Binding Path="CurrentDataSet.RegressionLinear.InfoString"></Binding>
+                            <Binding Path="CurrentDataSet.RegressionPolynomial.InfoString"></Binding>
+                            <Binding Path="CurrentDataSet.LinearRegressionType"></Binding>
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
 
             </Grid>
 
@@ -420,17 +420,10 @@
                     </DockPanel>
                 </StackPanel>
 
-                <TabControl x:Name="OptionsTab"  Grid.Column="1" TabStripPlacement="Right" ItemsSource="{Binding DataSetsOfPoints}">
-                    <TabControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <Canvas Background="Transparent">
-                            </Canvas>
-                        </ItemsPanelTemplate>
-                    </TabControl.ItemsPanel>
+                <TabControl x:Name="OptionsTab"  Grid.Column="1" ItemsSource="{Binding DataSetsOfPoints}" SelectedIndex="{Binding CurrentIndexOfDataSet}">
                     <TabControl.ItemTemplate>
-                        <!-- this is the header template-->
                         <DataTemplate>
-                            <TextBlock Text="{Binding SelectedIndex, ElementName=OptionsTab}"></TextBlock>
+                            <TextBlock Text="{Binding Name}"></TextBlock>
                         </DataTemplate>
                     </TabControl.ItemTemplate>
                     <TabControl.ContentTemplate>

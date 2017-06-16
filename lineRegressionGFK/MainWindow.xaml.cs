@@ -108,21 +108,21 @@ namespace lineRegressionGFK
 
             if (_manipulationStartedInfoFrame)
             {
-                //var mousePosition = e.GetPosition(sender as System.Windows.Controls.Label);
+                var mousePosition = e.GetPosition(sender as System.Windows.Controls.Label);
 
-                //TranslateTransform translateTransform = new TranslateTransform((mousePosition.X - _lastMousePositionInfoFrame.X), (mousePosition.Y - _lastMousePositionInfoFrame.Y));
-                //_lastMousePositionInfoFrame = mousePosition;
-                //TransformGroup transformGroup = new TransformGroup();
-                //TransformGroup tg = (TransformGroup)InfoFrameLabel.RenderTransform;
-                //foreach (Transform t in tg.Children)
-                //    if (t is TranslateTransform)
-                //    {
-                //        translateTransform.X += (t as TranslateTransform).X;
-                //        translateTransform.Y += (t as TranslateTransform).Y;
-                //    }
-                //transformGroup.Children.Add(translateTransform);
+                TranslateTransform translateTransform = new TranslateTransform((mousePosition.X - _lastMousePositionInfoFrame.X), (mousePosition.Y - _lastMousePositionInfoFrame.Y));
+                _lastMousePositionInfoFrame = mousePosition;
+                TransformGroup transformGroup = new TransformGroup();
+                TransformGroup tg = (TransformGroup)InfoFrameLabel.RenderTransform;
+                foreach (Transform t in tg.Children)
+                    if (t is TranslateTransform)
+                    {
+                        translateTransform.X += (t as TranslateTransform).X;
+                        translateTransform.Y += (t as TranslateTransform).Y;
+                    }
+                transformGroup.Children.Add(translateTransform);
 
-                //InfoFrameLabel.RenderTransform = transformGroup;
+                InfoFrameLabel.RenderTransform = transformGroup;
             }
         }
 
