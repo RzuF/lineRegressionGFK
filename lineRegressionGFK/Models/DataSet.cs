@@ -12,11 +12,21 @@ using lineRegressionGFK.Helpers;
 
 namespace lineRegressionGFK.Models
 {
+    /// <summary>
+    /// Model of single set of data. Holds information of points, regressions and style.
+    /// </summary>
     public class DataSet : INotifyPropertyChanged
     {
         #region Brushes
+
+        /// <summary>
+        /// Property holds text to display in Label
+        /// </summary>
         public string PointColorLabelText { get; } = "Pick point color";
         private Color _pointColor = Colors.White;
+        /// <summary>
+        /// Property holds information about chart points color
+        /// </summary>
         public Color PointColor
         {
             get { return _pointColor; }
@@ -27,11 +37,19 @@ namespace lineRegressionGFK.Models
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PointBrush)));
             }
         }
-
+        /// <summary>
+        /// Property holds information about chart points brush with color specified from PointColor property
+        /// </summary>
         public Brush PointBrush => new SolidColorBrush(_pointColor);
 
+        /// <summary>
+        /// Property holds text to display in Label
+        /// </summary>
         public string RegressionLineColorLabelText { get; } = "Pick line color";
         private Color _regressionLineColor = Colors.White;
+        /// <summary>
+        /// Property holds information about regression line color
+        /// </summary>
         public Color RegressionLineColor
         {
             get { return _regressionLineColor; }
@@ -42,14 +60,23 @@ namespace lineRegressionGFK.Models
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RegressionLineBrush)));
             }
         }
-
+        /// <summary>
+        /// Property holds information about regression line brush with color specified from RegressionLineColor property
+        /// </summary>
         public Brush RegressionLineBrush => new SolidColorBrush(_regressionLineColor);
 
         #endregion
 
         #region Point Radius
+
+        /// <summary>
+        /// Property holds text to display in Label
+        /// </summary>
         public string PointRadiusLabelText { get; } = "Point size";
         private int _pointRadius = 10;
+        /// <summary>
+        /// Property holds information about radius of each point
+        /// </summary>
         public int PointRadius
         {
             get { return _pointRadius; }
@@ -66,9 +93,14 @@ namespace lineRegressionGFK.Models
 
         private bool _isChangePending = false;
 
+        /// <summary>
+        /// Property holds text to display in Label
+        /// </summary>
         public string EllipseTypePointLabelText { get; } = "Ellipse";
         private bool _ellipseTypePoint = true;
-
+        /// <summary>
+        /// Property holds information if ellipse shape is selected. Default true
+        /// </summary>
         public bool EllipseTypePoint
         {
             get { return _ellipseTypePoint; }
@@ -89,9 +121,14 @@ namespace lineRegressionGFK.Models
             }
         }
 
+        /// <summary>
+        /// Property holds text to display in Label
+        /// </summary>
         public string RectangleTypePointLabelText { get; } = "Rectangle";
         private bool _rectangleTypePoint = false;
-
+        /// <summary>
+        /// Property holds information if rectangle shape is selected. Default false
+        /// </summary>
         public bool RectangleTypePoint
         {
             get { return _rectangleTypePoint; }
@@ -112,9 +149,14 @@ namespace lineRegressionGFK.Models
             }
         }
 
+        /// <summary>
+        /// Property holds text to display in Label
+        /// </summary>
         public string DiamondTypePointLabelText { get; } = "Diamond";
         private bool _diamondTypePoint = false;
-
+        /// <summary>
+        /// Property holds information if diamond shape is selected. Default false
+        /// </summary>
         public bool DiamondTypePoint
         {
             get { return _diamondTypePoint; }
@@ -140,6 +182,9 @@ namespace lineRegressionGFK.Models
         #region Points Collection
 
         private ObservableCollection<ChartPoint> _pointsCollection = new ObservableCollection<ChartPoint>();
+        /// <summary>
+        /// Property holds list of points in single DataSet object. ObservableCollection type notify View if any change in collection.
+        /// </summary>
         public ObservableCollection<ChartPoint> PointsCollection
         {
             get { return _pointsCollection; }
@@ -155,7 +200,9 @@ namespace lineRegressionGFK.Models
         #region Regressions
 
         private LinearRegression _regressionLinear;
-
+        /// <summary>
+        /// Property holds information about linear regression of current set of points
+        /// </summary>
         public LinearRegression RegressionLinear
         {
             get { return _regressionLinear; }
@@ -167,7 +214,9 @@ namespace lineRegressionGFK.Models
         }
 
         private PolynomialRegression _regressionPolynomial;
-
+        /// <summary>
+        /// Property holds information about polynomial regression of current set of points and specified coefficient
+        /// </summary>
         public PolynomialRegression RegressionPolynomial
         {
             get { return _regressionPolynomial; }
@@ -182,8 +231,14 @@ namespace lineRegressionGFK.Models
 
         #region Regression Types
 
+        /// <summary>
+        /// Property holds text to display in Label
+        /// </summary>
         public string LinearRegressionTypeLabelText { get; } = "Linear";
         private bool _linearRegressionType = true;
+        /// <summary>
+        /// Property holds information if linear regression is currently selected. Default true.
+        /// </summary>
         public bool LinearRegressionType
         {
             get
@@ -207,8 +262,14 @@ namespace lineRegressionGFK.Models
             }
         }
 
+        /// <summary>
+        /// Property holds text to display in Label
+        /// </summary>
         public string PolynomialRegressionTypeLabelText { get; } = "Polynomial";
         private bool _polynomialRegressionType = false;
+        /// <summary>
+        /// Property holds information if polynomial regression is currently selected. Default false
+        /// </summary>
         public bool PolynomialRegressionType
         {
             get
@@ -235,8 +296,15 @@ namespace lineRegressionGFK.Models
         #endregion
 
         #region Regression Properties
+
+        /// <summary>
+        /// Property holds text to display in Label
+        /// </summary>
         public string PolynomialCoefficientLabelText { get; } = "Coefficient:";
         private int _polynomialCoefficient = 3;
+        /// <summary>
+        /// Property holds information about currently specified coefficient. Updated fire UpdatePolynomial() method. Default 3
+        /// </summary>
         public int PolynomialCoefficient
         {
             get { return _polynomialCoefficient; }
@@ -251,7 +319,13 @@ namespace lineRegressionGFK.Models
             }
         }
 
+        /// <summary>
+        /// Property holds text to display in Label
+        /// </summary>
         public string StepLabelText { get; } = "Step";
+        /// <summary>
+        /// Property holds information about currently specified step for graphical representation. Updated fire UpdatePolynomial() method. Default 1
+        /// </summary>
         private double _step = 1;
 
         public double Step
@@ -272,14 +346,32 @@ namespace lineRegressionGFK.Models
 
         #region MinMax Properties
 
+        /// <summary>
+        /// Property holds information about current maximum value of Xs collection in this DataSet, initially set to 100
+        /// </summary>
         public double MaxXValue { get; private set; } = 100;
+        /// <summary>
+        /// Property holds information about current maximum value of Ys collection in this DataSet, initially set to 100
+        /// </summary>
         public double MaxYValue { get; private set; } = 100;
+        /// <summary>
+        /// Property holds information about current minimum value of Xs collection in this DataSet, initially set to -100
+        /// </summary>
         public double MinXValue { get; private set; } = -100;
+        /// <summary>
+        /// Property holds information about current minimum value of Ys collection in this DataSet, initially set to -100
+        /// </summary>
         public double MinYValue { get; private set; } = -100;
 
         #endregion
 
         #region Update Methods
+
+        /// <summary>
+        /// Method for adding point to this DataSet. Update linear and polynomial regression data.
+        /// </summary>
+        /// <param name="xValue">X coordinate of Point</param>
+        /// <param name="yValue">Y coordinate of Point</param>
         public void AddPointToPointsCollection(double xValue, double yValue)
         {
             if (xValue > MaxXValue)
@@ -318,6 +410,9 @@ namespace lineRegressionGFK.Models
             }
         }
 
+        /// <summary>
+        /// Helper method for updating data of polynomial regression. Take no effect if there is unsuffcient number of points (orderOfPolynomial+1).
+        /// </summary>
         void UpdatePolynomial()
         {
             if (PointsCollection.Count < PolynomialCoefficient + 1)
@@ -335,13 +430,24 @@ namespace lineRegressionGFK.Models
 
         #region Indetification Properties
 
+        /// <summary>
+        /// Property holds information about id of this DataSet
+        /// </summary>
         public int Id { get; set; }
+        /// <summary>
+        /// Property holds text to display in Label
+        /// </summary>
         public string Name => $"DataSet {Id}";
 
         #endregion
 
+        /// <summary>
+        /// Impementation of INotifyPropertyChanged interface, neccessary for proper Binding behaviour.
+        /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
-
+        /// <summary>
+        /// Impementation of INotifyPropertyChanged interface, neccessary for proper Binding behaviour.
+        /// </summary>
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
