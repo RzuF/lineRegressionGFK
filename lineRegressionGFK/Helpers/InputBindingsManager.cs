@@ -9,6 +9,9 @@ using System.Windows.Input;
 
 namespace lineRegressionGFK.Helpers
 {
+    /// <summary>
+    /// Helper class for accepting return in TextBoxes. Source: https://stackoverflow.com/questions/563195
+    /// </summary>
     public static class InputBindingsManager
     {
 

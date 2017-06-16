@@ -7,8 +7,19 @@ using lineRegressionGFK.Models;
 
 namespace lineRegressionGFK.Helpers
 {
+    /// <summary>
+    /// Helper static class for calculation coordinated of each polynomial part.
+    /// </summary>
     public static class PolynomialLineCreatorHelper
     {
+        /// <summary>
+        /// Method for creating parts of any polynomial graphical representation.
+        /// </summary>
+        /// <param name="coefficients">Coefficients of polynomial. From less significant to the most eg. a0 + a1*x + a2*x*x...</param>
+        /// <param name="start">X coordinate of starting point</param>
+        /// <param name="end">X coordinate of ending point</param>
+        /// <param name="step">How big is single step of line polynomial part</param>
+        /// <returns>List of parts for graphical representation</returns>
         public static List<ChartPolynomialPart> Create(double[] coefficients, double start, double end, double step)
         {
             List<ChartPolynomialPart> chartPolynomialParts = new List<ChartPolynomialPart>
@@ -42,6 +53,12 @@ namespace lineRegressionGFK.Helpers
             return chartPolynomialParts;
         }
 
+        /// <summary>
+        /// Helper method for calculating Y value of passed X using coefficients array parameter
+        /// </summary>
+        /// <param name="x">X coordinate of point to calculate Y value</param>
+        /// <param name="coefficients">array of polynomial coefficients</param>
+        /// <returns>Value of Y corresponding with passed X</returns>
         private static double CalculateValue(double x, double[] coefficients)
         {
             double result = 0;
