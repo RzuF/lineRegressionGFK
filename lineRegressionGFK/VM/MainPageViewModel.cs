@@ -101,12 +101,12 @@ namespace lineRegressionGFK.VM
                 if (_renderSize.Height == 0)
                     break;
                 var max = MaxYValue > -MinYValue ? MaxYValue : -MinYValue;
-                double position = i * LineHightDelta;
-                if (i * LineHightDelta > max && position * Scale > _renderSize.Height)
+                double position = i * LineHeightDelta;
+                if (i * LineHeightDelta > max && position * Scale > _renderSize.Height)
                     break;
-                newList.Add(new ChartLine() {PositionFromBeggining = position, Size = _renderSize.Width * 2 > max * 2 * Scale ? _renderSize.Width * 2 : max * 2 * Scale, Opacity = LineHorizontalOpacity, StringValue = $"{-i * LineHightDelta}"});
+                newList.Add(new ChartLine() {PositionFromBeggining = position, Size = _renderSize.Width * 2 > max * 2 * Scale ? _renderSize.Width * 2 : max * 2 * Scale, Opacity = LineHorizontalOpacity, StringValue = $"{-i * LineHeightDelta}"});
                 if (i != 0)
-                    newList.Add(new ChartLine() { PositionFromBeggining = -position, Size = _renderSize.Width * 2 > max * 2 * Scale ? _renderSize.Width * 2 : max * 2 * Scale, Opacity = LineHorizontalOpacity, StringValue = $"{i * LineHightDelta}" });
+                    newList.Add(new ChartLine() { PositionFromBeggining = -position, Size = _renderSize.Width * 2 > max * 2 * Scale ? _renderSize.Width * 2 : max * 2 * Scale, Opacity = LineHorizontalOpacity, StringValue = $"{i * LineHeightDelta}" });
             }
             HorizontalLinesCollection = newList;
         }
@@ -141,11 +141,11 @@ namespace lineRegressionGFK.VM
             if (newDelta)
             {
                 LineWidthDelta = Math.Round((MaxXValue - MinXValue) / 200.0, 0) * 10;
-                LineHightDelta = Math.Round((MaxYValue - MinXValue) / 200.0, 0) * 10;
+                LineHeightDelta = Math.Round((MaxYValue - MinXValue) / 200.0, 0) * 10;
                 if (LineWidthDelta > 100)
                     LineWidthDelta = Math.Round((MaxXValue - MinXValue) / 2000.0, 0) * 100;
-                if (LineHightDelta > 100)
-                    LineHightDelta = Math.Round((MaxYValue - MinYValue) / 2000.0, 0) * 100;
+                if (LineHeightDelta > 100)
+                    LineHeightDelta = Math.Round((MaxYValue - MinYValue) / 2000.0, 0) * 100;
             }
 
             UpdateVerticalLines();
@@ -257,24 +257,24 @@ namespace lineRegressionGFK.VM
         /// <summary>
         /// Property holds text to display in Label
         /// </summary>
-        public string YDeltaLabelText { get; set; } = "Hight line delta: ";
+        public string YDeltaLabelText { get; set; } = "Height line delta: ";
         /// <summary>
         /// Property holds text to display in Label
         /// </summary>
         public string XDeltaLabelText { get; set; } = "Width line delta: ";
 
-        private double _lineHightDelta = 10;
+        private double _lineHeightDelta = 10;
         /// <summary>
         /// Property holds information about how high should be space between each horizontal line. Default 10.
         /// </summary>
-        public double LineHightDelta
+        public double LineHeightDelta
         {
-            get { return _lineHightDelta; }
+            get { return _lineHeightDelta; }
             set
             {
-                _lineHightDelta = value;
+                _lineHeightDelta = value;
                 UpdateHorizontalLines();
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LineHightDelta)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LineHeightDelta)));
             }
         }
         private double _lineWidthDelta = 10;

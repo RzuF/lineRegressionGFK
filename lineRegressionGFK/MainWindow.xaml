@@ -470,7 +470,7 @@
                     </Button>
                     <DockPanel Margin="6">
                         <Label Content="{Binding YDeltaLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
-                        <TextBox Text="{Binding LineHightDelta, Mode=TwoWay, Converter={StaticResource StringToDoubleConverter}}" helpers:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text" VerticalAlignment="Center"/>
+                        <TextBox Text="{Binding LineHeightDelta, Mode=TwoWay, Converter={StaticResource StringToDoubleConverter}}" helpers:InputBindingsManager.UpdatePropertySourceWhenEnterPressed="TextBox.Text" VerticalAlignment="Center"/>
                     </DockPanel>
                     <DockPanel Margin="6">
                         <Label Content="{Binding XDeltaLabelText}" HorizontalAlignment="Left" VerticalAlignment="Center"></Label>
