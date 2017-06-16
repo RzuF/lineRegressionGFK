@@ -465,7 +465,7 @@
                 <StackPanel>
                     <Button Content="{Binding ToCenterText}" Command="{Binding ToCenterCommand}" Margin="6">
                         <Button.CommandParameter>
-                            <Binding Path="Children[0].Children[0]" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type Grid}, AncestorLevel=2}"/>
+                            <Binding Path="Children[0].Children[0].Children[0]" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type Grid}, AncestorLevel=2}"/>
                         </Button.CommandParameter>
                     </Button>
                     <DockPanel Margin="6">
