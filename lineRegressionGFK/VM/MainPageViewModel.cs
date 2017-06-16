@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -18,7 +17,6 @@ using lineRegressionGFK.Models;
 using Brush = System.Windows.Media.Brush;
 using Clipboard = System.Windows.Clipboard;
 using Color = System.Windows.Media.Color;
-using Image = System.Drawing.Image;
 using OpenFileDialog = System.Windows.Forms.OpenFileDialog;
 using Size = System.Windows.Size;
 

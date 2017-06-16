@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using lineRegressionGFK.Annotations;
-using lineRegressionGFK.Models;
 
 namespace lineRegressionGFK.Models
 { 
     /// <summary>
-    /// Model of Linear regression
+    /// Model of Orthogonal regression
     /// </summary>
     public class OrthogonalRegression : INotifyPropertyChanged
     {
